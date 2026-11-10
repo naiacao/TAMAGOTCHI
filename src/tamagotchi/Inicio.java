@@ -77,6 +77,17 @@ public class Inicio extends JFrame{
 		
 		btnalimentar.addActionListener(listenerAlimentar);
 		
+		
+		// Listener para abrir la pantalla de juegos
+		ActionListener listenerJugar = new ActionListener() {
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        irAJuegos();
+		    }
+		};
+
+		btnjugar.addActionListener(listenerJugar);
+		
 		//Añadir todos los paneles
 		
 		panelCentro.add(panelTamagotchi);
@@ -147,9 +158,15 @@ public class Inicio extends JFrame{
 		fila.add(barra, BorderLayout.CENTER);
 		return fila;
 	}
+	
 	private void irAComida() {
 		new Comida().setVisible(true);
 	    this.dispose();
+	}
+	
+	private void irAJuegos() {
+	    new JuegosClase().setVisible(true);
+	    this.dispose(); 
 	}
 
 
