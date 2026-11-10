@@ -6,12 +6,15 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.GridBagLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -134,6 +137,28 @@ public class PrimeraVentana extends JFrame {
 		panelBotones.add(botonContinuar);
 		panelBotones.add(botonSalir);
 		
+		//A los botones meterles los listeners
+		ActionListener listenerSalir = new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				cerrarJuego();
+			}
+		};
+		botonSalir.addActionListener(listenerSalir);
+		
+		ActionListener listenerContinuar = new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				Inicio();
+			}
+		};
+			
+		botonContinuar.addActionListener(listenerContinuar);
+		
 		
 		//Añadir todos los paneles
 		
@@ -144,6 +169,23 @@ public class PrimeraVentana extends JFrame {
 		this.add(panelPrincipal);
 		
 	}
+	  private void cerrarJuego() {
+	        int opcion = JOptionPane.showConfirmDialog(
+	                this,
+	                "¿Seguro que quieres cerrar el juego?",
+	                "Cerrar juego",
+	                JOptionPane.YES_NO_OPTION,
+	                JOptionPane.QUESTION_MESSAGE);
+
+	        if (opcion == JOptionPane.YES_OPTION) {
+	            System.exit(0);         //ESTO SIRVE PARA CERRAR TODO EL PROCESO DEL JUEGO, CON EL DISPOSE NO NOS CERRARÍA EL JUEGO
+	        }
+	    }
+	  
+	  private void Inicio() {
+		 new Inicio().setVisible(true);
+  	    this.dispose();
+	  }
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
