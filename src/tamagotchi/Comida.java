@@ -8,6 +8,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -41,7 +42,11 @@ public class Comida extends JFrame {
 		};
 		
 		
-		
+		//Añadir el menu
+		   this.setJMenuBar(new MenuJuego(
+	                e -> irAInicio(),
+	                e -> cerrarJuego(),
+	                e -> cambiarUsuario()));
 		
 		
 		JPanel panelPrincipal = new JPanel(new GridLayout(2, 1));
@@ -95,6 +100,32 @@ public class Comida extends JFrame {
 		this.setSize(430,550);
 		this.setVisible(true);
 	}
+    private void cambiarUsuario() {
+		// TODO Auto-generated method stub
+    	 new PrimeraVentana().setVisible(true);
+    	  this.dispose();
+	}
+
+	/** Vuelve a la pantalla principal. dispose() cierra SOLO esta ventana. */
+    private void irAInicio() {
+    	    new Inicio().setVisible(true);
+    	    this.dispose();
+    	
+    }
+
+    /** Cierra el juego entero, pidiendo confirmacion antes. */
+    private void cerrarJuego() {
+        int opcion = JOptionPane.showConfirmDialog(
+                this,
+                "¿Seguro que quieres cerrar el juego?",
+                "Cerrar juego",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+
+        if (opcion == JOptionPane.YES_OPTION) {
+            System.exit(0);            // termina el proceso, no solo la ventana
+        }
+    }
 	
 	public static void main(String[] args) {
 
