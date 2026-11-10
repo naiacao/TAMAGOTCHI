@@ -132,6 +132,7 @@ public class Percha extends JFrame {
         this.add(panelPrincipal);
         this.setSize(430, 580);       
         this.setResizable(false);
+        this.setLocationRelativeTo(null);
     }
 
     // ACCIONES DE LA PANTALLA, siempre que invoquemos un menu, vamos a tener que meter como actua cada opcion en esta clase.

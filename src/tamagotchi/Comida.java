@@ -99,6 +99,9 @@ public class Comida extends JFrame {
 		this.add(panelPrincipal);
 		this.setSize(430,550);
 		this.setVisible(true);
+		this.setResizable(false);
+		this.setTitle("TAMAGOCHI - comida");
+		this.setLocationRelativeTo(null);
 	}
     private void cambiarUsuario() {
 		// TODO Auto-generated method stub
