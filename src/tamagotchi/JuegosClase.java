@@ -87,11 +87,11 @@ public class JuegosClase extends JFrame {
 		});
 
 		btnJuego2.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Juego2 dialog = new Juego2(JuegosClase.this);
-				dialog.setVisible(true);
-			}
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        Juego2 dialog = new Juego2(JuegosClase.this, colorMascota);
+		        dialog.setVisible(true);
+		    }
 		});
 
 		btnJuego3.addActionListener(new ActionListener() {
