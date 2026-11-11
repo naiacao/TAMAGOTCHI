@@ -22,20 +22,25 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+// Juego 2: Space Shooter . Meteoritos. La idea base la saqué de un vídeo de YouTube,
+// y me apoyé en la IA para estructurar bien los timers, la física de disparo y los power-ups.
 public class Juego2 extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 
+	// Recibe la ventana de juegos y el color elegido para mi mascota
 	public Juego2(JFrame padre, Color colorMascota) {
 		super(padre, "Juego 2 - Space Tamagotchi", true);
 		this.setResizable(false);
 
+		// Panel donde ocurre toda la acción del juego
 		PanelJuego panelJuego = new PanelJuego(380, 480, colorMascota);
 		this.add(panelJuego);
 		this.pack();
 		this.setLocationRelativeTo(padre);
 	}
 
+	// Constructores por defecto por si lo abro sin pasar parámetros
 	public Juego2(JFrame padre) {
 		this(padre, new Color(255, 193, 7));
 	}
@@ -44,6 +49,7 @@ public class Juego2 extends JDialog {
 		this(null, new Color(255, 193, 7));
 	}
 
+	// El panel donde se dibuja el espacio, mi nave, los meteoros y los disparos
 	private class PanelJuego extends JPanel implements ActionListener {
 		private static final long serialVersionUID = 1L;
 
@@ -51,33 +57,33 @@ public class Juego2 extends JDialog {
 		private final int alto;
 		private Color colorMascota;
 
-		// Posición y tamaño de la nave
+		// Posición y tamaño de mi nave (el Tamagotchi espacial)
 		private int naveX;
 		private int naveY;
 		private final int naveAncho = 34;
 		private final int naveAlto = 30;
 		private final int velocidadNave = 5;
 
-		// Controles de movimiento
+		// Controles de movimiento lateral y el cooldown de disparo
 		private boolean moverIzquierda = false;
 		private boolean moverDerecha = false;
 		private long ultimoDisparo = 0;
 
-		// Sistema de Power-Up
-		private int nivelDisparo = 1; // 1 = Simple, 2 = Doble, 3 = Triple
+		// Sistema de Power-Ups (1 = Simple, 2 = Doble, 3 = Triple)
+		private int nivelDisparo = 1; 
 		private long tiempoFinPowerUp = 0;
 
-		// Estados del juego
+		// Control de estados del juego y los puntos
 		private boolean iniciado = false;
 		private boolean pausado = false;
 		private boolean gameOver = false;
 		private int puntuacion = 0;
 
-		// Botones
+		// Los botones de la interfaz
 		private JButton btnPausa;
 		private JButton btnSalir;
 
-		// Entidades del juego
+		// Clases internas sencillas para los objetos que se mueven por el mapa
 		private class Laser {
 			int x, y;
 			int ancho = 4;
@@ -114,6 +120,7 @@ public class Juego2 extends JDialog {
 			}
 		}
 
+		// Listas para manejar los disparos, meteoros y los bonus que caen
 		private List<Laser> lasers;
 		private List<Meteoro> meteoros;
 		private List<PowerUp> powerUps;
@@ -123,13 +130,15 @@ public class Juego2 extends JDialog {
 		public PanelJuego(int ancho, int alto, Color colorMascota) {
 			this.ancho = ancho;
 			this.alto = alto;
+			// Aseguro un color amarillo por defecto si el objeto viene nulo
 			this.colorMascota = (colorMascota != null) ? colorMascota : new Color(255, 193, 7);
 
+			// Coloco mi nave centrada en la parte de abajo
 			this.naveX = ancho / 2 - naveAncho / 2;
 			this.naveY = alto - 60;
 
 			this.setPreferredSize(new Dimension(ancho, alto));
-			this.setBackground(new Color(15, 15, 30));
+			this.setBackground(new Color(15, 15, 30)); // Fondo espacio oscuro
 			this.setLayout(null);
 			this.setFocusable(true);
 
@@ -141,8 +150,8 @@ public class Juego2 extends JDialog {
 			btnPausa = new JButton("||");
 			btnPausa.setFont(new Font("SansSerif", Font.BOLD, 12));
 			btnPausa.setBounds(ancho - 105, 10, 45, 30);
-			btnPausa.setMargin(new Insets(0, 0, 0, 0));
-			btnPausa.setFocusable(false);
+			btnPausa.setMargin(new Insets(0, 0, 0, 0)); // Evito los 3 puntos por margen
+			btnPausa.setFocusable(false); // Clave para que no me robe los controles del teclado
 			btnPausa.setCursor(new Cursor(Cursor.HAND_CURSOR));
 			btnPausa.setToolTipText("Pausar / Reanudar");
 
@@ -163,13 +172,14 @@ public class Juego2 extends JDialog {
 			btnSalir.setFont(new Font("SansSerif", Font.BOLD, 14));
 			btnSalir.setBounds(ancho - 55, 10, 45, 30);
 			btnSalir.setMargin(new Insets(0, 0, 0, 0));
-			btnSalir.setFocusable(false);
+			btnSalir.setFocusable(false); // Evita perder el foco del teclado al pulsar
 			btnSalir.setCursor(new Cursor(Cursor.HAND_CURSOR));
 			btnSalir.setToolTipText("Salir al menú de juegos");
 
 			btnSalir.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					// Detengo los timers para no dejar tareas corriendo en segundo plano
 					gameLoop.stop();
 					creadorMeteoros.stop();
 					Juego2.this.dispose();
@@ -177,7 +187,7 @@ public class Juego2 extends JDialog {
 			});
 			this.add(btnSalir);
 
-			// Controles de Teclado (ESPACIO solo para empezar / reiniciar)
+			// Controles de teclado (ESPACIO solo para empezar o reiniciar)
 			this.addKeyListener(new KeyAdapter() {
 				@Override
 				public void keyPressed(KeyEvent e) {
@@ -193,6 +203,7 @@ public class Juego2 extends JDialog {
 						return;
 					}
 
+					// Movimiento lateral con flechas o A/D
 					if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_A) {
 						moverIzquierda = true;
 					}
@@ -213,9 +224,11 @@ public class Juego2 extends JDialog {
 				}
 			});
 
+			// Timer principal del juego (~60 FPS)
 			gameLoop = new Timer(16, this);
 			gameLoop.start();
 
+			// Timer para hacer spawn de meteoros cada 900 ms
 			creadorMeteoros = new Timer(900, new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -225,12 +238,14 @@ public class Juego2 extends JDialog {
 			creadorMeteoros.start();
 		}
 
+		// Método de disparo (automático con cadencia de 180 ms)
 		private void disparar() {
 			if (!iniciado || pausado || gameOver) return;
 
 			long ahora = System.currentTimeMillis();
-			if (ahora - ultimoDisparo > 180) { // Cadencia de disparo constante
+			if (ahora - ultimoDisparo > 180) {
 				
+				// Según mi nivel de power-up genero 1, 2 o 3 láseres a la vez
 				if (nivelDisparo == 1) {
 					lasers.add(new Laser(naveX + naveAncho / 2 - 2, naveY));
 				} else if (nivelDisparo == 2) {
@@ -246,6 +261,7 @@ public class Juego2 extends JDialog {
 			}
 		}
 
+		// Genero meteoros en posiciones X aleatorias en la parte superior
 		private void generarMeteoro() {
 			if (!iniciado || pausado || gameOver) return;
 
@@ -256,6 +272,7 @@ public class Juego2 extends JDialog {
 			meteoros.add(new Meteoro(xRandom, -tamano, tamano, vel));
 		}
 
+		// Reseteo todo para volver a jugar tras perder
 		private void reiniciarJuego() {
 			naveX = ancho / 2 - naveAncho / 2;
 			lasers.clear();
@@ -270,18 +287,19 @@ public class Juego2 extends JDialog {
 			btnPausa.setText("||");
 		}
 
+		// Lógica de física, movimiento y colisiones
 		private void mover() {
 			if (!iniciado || pausado || gameOver) return;
 
-			// --- DISPARO AUTOMÁTICO CONTINUO ---
+			// Disparo automático continuo en cada frame
 			disparar();
 
-			// Comprobar expiración del Power-Up
+			// Si se terminan los 8 segundos del Power-Up, vuelvo al disparo base
 			if (nivelDisparo > 1 && System.currentTimeMillis() > tiempoFinPowerUp) {
 				nivelDisparo = 1;
 			}
 
-			// Movimiento de la nave
+			// Movimiento de la nave sin salir del marco
 			if (moverIzquierda && naveX > 0) {
 				naveX -= velocidadNave;
 			}
@@ -289,7 +307,7 @@ public class Juego2 extends JDialog {
 				naveX += velocidadNave;
 			}
 
-			// Mover láseres
+			// Muevo los láseres hacia arriba y elimino los que salen de pantalla
 			Iterator<Laser> itLaser = lasers.iterator();
 			while (itLaser.hasNext()) {
 				Laser l = itLaser.next();
@@ -299,7 +317,7 @@ public class Juego2 extends JDialog {
 				}
 			}
 
-			// Mover Power-Ups y comprobar si la nave los recoge
+			// Muevo los Power-Ups y detecto si la nave los recoge
 			Iterator<PowerUp> itPower = powerUps.iterator();
 			while (itPower.hasNext()) {
 				PowerUp p = itPower.next();
@@ -321,12 +339,13 @@ public class Juego2 extends JDialog {
 				}
 			}
 
-			// Mover meteoros y comprobar colisiones
+			// Muevo meteoros y compruebo colisiones
 			Iterator<Meteoro> itMeteoro = meteoros.iterator();
 			while (itMeteoro.hasNext()) {
 				Meteoro m = itMeteoro.next();
 				m.y += m.velocidad;
 
+				// Choque contra la nave = Game Over
 				if (naveX < m.x + m.tamano && naveX + naveAncho > m.x &&
 					naveY < m.y + m.tamano && naveY + naveAlto > m.y) {
 					gameOver = true;
@@ -337,6 +356,7 @@ public class Juego2 extends JDialog {
 					continue;
 				}
 
+				// Colisión entre disparo y meteoro
 				Iterator<Laser> itL = lasers.iterator();
 				while (itL.hasNext()) {
 					Laser l = itL.next();
@@ -347,6 +367,7 @@ public class Juego2 extends JDialog {
 						itMeteoro.remove();
 						puntuacion += 10;
 
+						// 25% de probabilidad de que caiga una cápsula de mejora
 						if (Math.random() < 0.25) {
 							powerUps.add(new PowerUp(m.x + m.tamano / 2 - 10, m.y));
 						}
@@ -368,14 +389,14 @@ public class Juego2 extends JDialog {
 			Graphics2D g2d = (Graphics2D) g;
 			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-			// --- DIBUJAR NAVE ---
+			// --- Dibujo la nave con el color de mi mascota ---
 			g2d.setColor(this.colorMascota);
 			g2d.fillOval(naveX, naveY + 6, naveAncho, naveAlto - 6);
 			g2d.fillRect(naveX + naveAncho / 2 - 3, naveY, 6, 8);
 			g2d.setColor(Color.BLACK);
 			g2d.fillOval(naveX + naveAncho / 2 - 2, naveY + 12, 4, 4);
 
-			// --- DIBUJAR LÁSERES ---
+			// --- Dibujo los láseres (cambian de color según el nivel de disparo) ---
 			if (nivelDisparo == 1) {
 				g2d.setColor(Color.CYAN);
 			} else if (nivelDisparo == 2) {
@@ -388,7 +409,7 @@ public class Juego2 extends JDialog {
 				g2d.fillRect(l.x, l.y, l.ancho, l.alto);
 			}
 
-			// --- DIBUJAR METEOROS ---
+			// --- Dibujo los meteoros ---
 			Color colorMeteoro = new Color(140, 120, 110);
 			Color colorBordeMeteoro = new Color(90, 75, 70);
 			for (Meteoro m : meteoros) {
@@ -398,7 +419,7 @@ public class Juego2 extends JDialog {
 				g2d.drawOval(m.x, m.y, m.tamano, m.tamano);
 			}
 
-			// --- DIBUJAR POWER-UPS ---
+			// --- Dibujo las cápsulas doradas con la 'P' de Power-Up ---
 			for (PowerUp p : powerUps) {
 				g2d.setColor(new Color(255, 193, 7));
 				g2d.fillOval(p.x, p.y, p.tamano, p.tamano);
@@ -410,7 +431,7 @@ public class Juego2 extends JDialog {
 				g2d.drawString("P", p.x + 6, p.y + 14);
 			}
 
-			// --- HUD ---
+			// --- Información del HUD (Puntos y tiempo restante del bonus) ---
 			g2d.setFont(new Font("SansSerif", Font.BOLD, 18));
 			g2d.setColor(Color.WHITE);
 			g2d.drawString("Puntos: " + puntuacion, 20, 32);
