@@ -82,16 +82,32 @@ public class Inicio extends JFrame{
 		panelBotones.add(btnalimentar);
 		panelBotones.add(btnjugar);
 		panelBotones.add(btndormir);
+
 		
 		BotonCircular botonpercha = new BotonCircular("fotos/PERCHA.png", 30);
-		JPanel zonaboton = new JPanel();
-		zonaboton.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 5));
-        zonaboton.setAlignmentX(0.5f);
-        zonaboton.add(botonpercha);
-        panelTamagotchi.add(zonaboton, BorderLayout.NORTH);
+        BotonCircular botonusuario = new BotonCircular("fotos/USUARIO.png", 30);
+
+		
+		JPanel zonaboton = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        //zonaboton.setAlignmentX(0.5f);
+		zonaboton.add(botonusuario);
+		zonaboton.add(botonpercha);
+
+		panelTamagotchi.add(zonaboton, BorderLayout.NORTH);
+		
         
 		
 		//Añadir listener a los botones
+        ActionListener listenerUsuario = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cambiarUsuario();
+            }
+        };
+
+        botonusuario.addActionListener(listenerUsuario);
+        
+        
 		ActionListener listenerAlimentar = new ActionListener() {
 			
 			@Override
