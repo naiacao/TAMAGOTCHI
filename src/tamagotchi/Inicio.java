@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -95,16 +96,34 @@ public class Inicio extends JFrame {
 
 		BotonCircular botonpercha = new BotonCircular("fotos/PERCHA.png", 30);
 		BotonCircular botonusuario = new BotonCircular("fotos/USUARIO.png", 30);
+		BotonCircular botonranking = new BotonCircular("fotos/COPA.png", 40);
 
-		JPanel zonaboton = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
-		zonaboton.add(botonusuario);
-		zonaboton.add(botonpercha);
+		//Panel izquierdo: usuario + percha
+		JPanel zonabotonIzq = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+		zonabotonIzq.add(botonusuario);
+		zonabotonIzq.add(botonpercha);
+		
+		//Panel derecho: rankin
+		JPanel zonabotonDer = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
+		zonabotonDer.add(botonranking);
 
-		panelTamagotchi.add(zonaboton, BorderLayout.NORTH);
+		//Panel de botones que contiene ambos lados
+		JPanel zonabotones = new JPanel(new BorderLayout());
+		
+		zonabotones.add(zonabotonIzq, BorderLayout.WEST);
+		zonabotones.add(zonabotonDer, BorderLayout.EAST);
+		panelTamagotchi.add(zonabotones, BorderLayout.NORTH);
 
 		// Listeners de botones superiores
 		ActionListener listenerUsuario = e -> cambiarUsuario();
 		botonusuario.addActionListener(listenerUsuario);
+		
+		ActionListener listenerRanking = e -> abrirRanking();
+		botonranking.addActionListener(listenerRanking);
+		
+		// Listener para abrir la pantalla de percha
+		ActionListener listenerPercha = e -> iraPercha();
+		botonpercha.addActionListener(listenerPercha);
 
 		ActionListener listenerAlimentar = e -> irAComida();
 		btnalimentar.addActionListener(listenerAlimentar);
@@ -112,10 +131,6 @@ public class Inicio extends JFrame {
 		// Listener para abrir la pantalla de juegos pasando el color de la mascota
 		ActionListener listenerJugar = e -> irAJuegos();
 		btnjugar.addActionListener(listenerJugar);
-
-		// Listener para abrir la pantalla de percha
-		ActionListener listenerPercha = e -> iraPercha();
-		botonpercha.addActionListener(listenerPercha);
 
 		panelCentro.add(panelTamagotchi);
 		panelCentro.add(panelInfo);
@@ -210,6 +225,11 @@ public class Inicio extends JFrame {
 		new Percha().setVisible(true);
 		this.dispose();
 	}
+	
+	private void abrirRanking() {
+	    Ranking ranking = new Ranking(this);
+	    ranking.setVisible(true);
+	}
 
 	private void cerrarJuego() {
 		int opcion = JOptionPane.showConfirmDialog(
@@ -280,13 +300,13 @@ public class Inicio extends JFrame {
 		        }
 
 		        try {
-		            Thread.sleep(500);
+		            Thread.sleep(450);
 		        } catch (InterruptedException e) {
 		            return;
 		        }
 
 		        SwingUtilities.invokeLater(() -> {
-		            int v = barraenergia.getValue() + 40;
+		            int v = barraenergia.getValue() + 1;
 		            if (v > 100) {
 		                v = 100;
 		            }
