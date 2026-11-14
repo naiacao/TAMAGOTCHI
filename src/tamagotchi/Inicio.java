@@ -19,6 +19,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 public class Inicio extends JFrame {
@@ -33,6 +34,7 @@ public class Inicio extends JFrame {
 	private JProgressBar barrafelicidad = new JProgressBar(0, 100);
 
 	private JPanel panelTamagotchi = new JPanel(new BorderLayout());
+	private JLabel imagenMascota;
 	private JPanel oscurecedor;
 	private Hiloenergia hiloenergia;
 	
@@ -65,7 +67,7 @@ public class Inicio extends JFrame {
 
 		// Creación de los paneles
 		JPanel panelPrincipal = new JPanel(new BorderLayout());
-		JPanel panelCentro = new JPanel(new GridLayout(2, 1, 0, 10));
+		JPanel panelCentro = new JPanel(new BorderLayout(0, 10));
 		JPanel panelBotones = new JPanel(new GridLayout(1, 3, 10, 10));
 		panelBotones.setPreferredSize(new Dimension(0, 75));
 		panelBotones.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
@@ -81,6 +83,14 @@ public class Inicio extends JFrame {
 		panelInfo.add(crearFila("Felicidad", "fotos/CORAZON.png", 0, new Color(63, 143, 208), barrafelicidad));
 
 		panelTamagotchi.setBorder(BorderFactory.createTitledBorder("Estado"));
+		imagenMascota = new JLabel("", SwingConstants.CENTER);
+		imagenMascota.setPreferredSize(new Dimension(200, 180));
+		imagenMascota.setOpaque(true);
+		imagenMascota.setBackground(new Color(235, 235, 235));
+
+		JPanel zonaMascota = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 5));
+		zonaMascota.add(imagenMascota);
+		panelTamagotchi.add(zonaMascota, BorderLayout.CENTER);
 
 		// Creación de botones
 		btnalimentar = new BotonRedondo("ALIMENTAR", new Color(76, 175, 80), new Color(46, 125, 50));
@@ -132,8 +142,8 @@ public class Inicio extends JFrame {
 		ActionListener listenerJugar = e -> irAJuegos();
 		btnjugar.addActionListener(listenerJugar);
 
-		panelCentro.add(panelTamagotchi);
-		panelCentro.add(panelInfo);
+		panelCentro.add(panelTamagotchi, BorderLayout.CENTER);
+		panelCentro.add(panelInfo, BorderLayout.SOUTH);
 
 		// Oscurecedor de pantalla
 		oscurecedor = new PanelOscuro(90);
@@ -157,7 +167,7 @@ public class Inicio extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (hiloenergia.isDormido()) {
-					hiloenergia.reanudar();
+					hiloenergia.despertar();
 					oscurecedor.setVisible(false);
 					btndormir.setText("DORMIR");
 					btndormir.setToolTipText("DORMIR");
@@ -172,7 +182,7 @@ public class Inicio extends JFrame {
 					oscurecedor.setVisible(true);
 					btndormir.setText("DESPERTAR");
 					btndormir.setToolTipText("DESPERTAR");
-					 hiloenergia.arrancarSiHaceFalta();
+					
 
 				
 				}
@@ -184,8 +194,50 @@ public class Inicio extends JFrame {
 		panelPrincipal.add(capas, BorderLayout.CENTER);
 		panelPrincipal.add(panelBotones, BorderLayout.SOUTH);
 		this.add(panelPrincipal);
+		mostrarMascota();
+		hiloenergia.arrancarSiHaceFalta();
+
 		
 	
+	}
+
+	private void mostrarMascota() { //Este es el metodo que nos va a buscar el PNG según el color
+		// TODO Auto-generated method stub
+		String nombre = nombreArchivoColor(colorMascota);
+		ImageIcon icono = new ImageIcon("fotos/"+ nombre + ".png");
+		if (icono.getIconWidth() <= 0) {
+	        imagenMascota.setIcon(null);
+	        imagenMascota.setOpaque(true);
+	        imagenMascota.setBackground(new Color(235, 235, 235));
+	        imagenMascota.setText("falta fotos/" + nombre + ".png");
+	        return;
+	    } 
+		// Ahora es más o menos lo mismo que lo de percha, para el tema tamaño y tal
+		int anchoMax = 200, altoMax = 180;
+	    int w = icono.getIconWidth(), h = icono.getIconHeight();
+	    double factor = Math.min((double) anchoMax / w, (double) altoMax / h);
+	    int nuevoW = (int) (w * factor);
+	    int nuevoH = (int) (h * factor);
+
+	    Image escalada = icono.getImage().getScaledInstance(nuevoW, nuevoH, Image.SCALE_REPLICATE);
+	    imagenMascota.setIcon(new ImageIcon(escalada));
+	    imagenMascota.setText("");
+		
+	}
+
+	private String nombreArchivoColor(Color c) {
+		// TODO Auto-generated method stub
+		if (c.equals(Color.white))            return "Blanco";
+	    if (c.equals(Color.yellow))           return "Amarillo";
+	    if (c.equals(Color.orange))           return "Naranja";
+	    if (c.equals(Color.pink))             return "Rosa";
+	    if (c.equals(Color.red))              return "Rojo";
+	    if (c.equals(new Color(105, 12, 181))) return "Morado";
+	    if (c.equals(Color.blue))             return "Azul";
+	    if (c.equals(new Color(15, 245, 231))) return "Mentoso";
+	    if (c.equals(Color.green))            return "Verde";
+	    if (c.equals(Color.black))            return "Negro";
+	    return "Blanco";
 	}
 
 	private JPanel crearFila(String texto, String rutaIcono, int valor, Color color, JProgressBar barra) {
@@ -222,7 +274,7 @@ public class Inicio extends JFrame {
 	}
 
 	private void iraPercha() {
-		new Percha().setVisible(true);
+		new Percha(this.colorMascota).setVisible(true);
 		this.dispose();
 	}
 	
@@ -248,13 +300,14 @@ public class Inicio extends JFrame {
 	public void setColorSeleccionado(Color colorMascota) {
 		this.colorMascota = colorMascota;
 		panelTamagotchi.setBackground(colorMascota);
+		mostrarMascota();
 		panelTamagotchi.repaint();
 	}
 
 	public class Hiloenergia extends Thread {
 		private volatile boolean dormido = false;
 		private void despertarPorEnergia() {
-		    hiloenergia.reanudar();          // dormido = false + notifyAll()
+		    hiloenergia.despertar();          // dormido = false + notifyAll()
 		    oscurecedor.setVisible(false);
 		    btndormir.setText("DORMIR");
 		    btndormir.setToolTipText("DORMIR");
@@ -267,17 +320,14 @@ public class Inicio extends JFrame {
 		        dormido = false;
 		        start();
 		    }
-		    dormido = true;
-		    notifyAll();
 		}
 		public synchronized void dormir() {
-	        	synchronized (this) {
 	        		  dormido = true;
-				}
+	        		  notifyAll();
 	         
 	        }
 
-	        public synchronized void reanudar() {
+	        public synchronized void despertar() {
 	            dormido = false;
 	            notifyAll(); // despierta al hilo si estaba esperando
 	        }

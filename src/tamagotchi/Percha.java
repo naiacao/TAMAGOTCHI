@@ -5,10 +5,15 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -26,13 +31,27 @@ public class Percha extends JFrame {
     private int cantidadBotones = 9;
 
     private JComboBox<ColorMascota> comboColores;
-    private Color colorSeleccionado = Color.white;
-
-    // Cuando tengas la imagen, descomenta este campo:
-    // private PanelMascota mascota;
-
+    private JLabel imagenMascota;
+    private Color colorSeleccionado;
+    
+    private String[] gorros = {
+    		"gorro1", "gorro2", "gorro3", "gorro4", "gorro5", "gorro6", "gorro7", "gorro8", "gorro9"
+    };
+    private String rutaMascotaActual;
+    private String gorroActual = null;
+    
+    //Ajustes para el tamaño del gorro un poco a ojo
+    private static final double ANCHO_GORRO   = 0.42; // ancho del gorro respecto a la mascota (pequeño)
+    private static final double ALTURA_CABEZA = 0.12; // donde esta lo alto de la cabeza (0 = arriba del todo, 1 = abajo)
+    private static final int    AJUSTE_X      = 0;    // mover a izquierda (-) o derecha (+), en pixeles
+    private static final int    AJUSTE_Y      = 0;    // mover arriba (-) o abajo (+), en pixeles
+    private static final double MARGEN_ARRIBA = 0.30;
     public Percha() {
+    	this(Color.white);
+    }
 
+    public Percha(Color colorInicial) {
+    	this.colorSeleccionado = colorInicial;
         // MENU BAR (clase aparte, lo usamos en otras pantallas tb, si queremos poner el menu en otra pantalla ponemos esto
         // siempre vamos a tener que añadirlo ANTES de setSize(), porque la barra ocupa altura y como que si no no va.
         this.setJMenuBar(new MenuJuego(
@@ -40,7 +59,7 @@ public class Percha extends JFrame {
                 e -> cerrarJuego(),
                 e -> cambiarUsuario()));
 
-        // ---- ZONA DE COLORES CON COMBO ----
+        //ZONA DE COLORES CON COMBO
         comboColores = new JComboBox<>(new ColorMascota[]{
             new ColorMascota("Blanco",   Color.white),
             new ColorMascota("Amarillo", Color.yellow),
@@ -60,7 +79,7 @@ public class Percha extends JFrame {
             ColorMascota sel = (ColorMascota) comboColores.getSelectedItem();
             if (sel != null) {
                 colorSeleccionado = sel.getColor();
-                // mascota.setColorMascota(colorSeleccionado);
+                mostrarMascota(sel.getRutaImagen());
             }
         });
 
@@ -76,19 +95,39 @@ public class Percha extends JFrame {
         // ---- ZONA DE ARRIBA ----
         JPanel panelArriba = new JPanel(new BorderLayout());
 
-        // ---- ACCESORIOS ----
+        // ACCESORIOS 
         JLabel tituloAccesorios = new JLabel("ACCESORIOS", SwingConstants.CENTER);
         tituloAccesorios.setFont(fuenteTitulo);
 
         JPanel panelBotones = new JPanel(new GridLayout(3, 3, 5, 5));
         panelBotones.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
         for (int i = 0; i < cantidadBotones; i++) {
-            JButton boton = new JButton("l");
+            JButton boton = new JButton();
             boton.setBackground(Color.white);
             boton.setBorder(BorderFactory.createLineBorder(Color.white));
+            boton.setFocusPainted(false); //mirar un poco esto
+            if (i< gorros.length) {
+            	final String nombre = gorros[i];
+                ImageIcon ic = new ImageIcon("gorros/" + nombre + ".png");
+                if (ic.getIconWidth() > 0) {
+                    // miniatura manteniendo proporcion
+                    double f = Math.min(60.0 / ic.getIconWidth(), 60.0 / ic.getIconHeight());
+                    boton.setIcon(new ImageIcon(ic.getImage().getScaledInstance(
+                            (int) (ic.getIconWidth() * f),
+                            (int) (ic.getIconHeight() * f),
+                            Image.SCALE_SMOOTH)));
+            }else {
+            	boton.setText("?"); //porseacaso hemos puesto mal la ruta o lo que sea 
+            }
+                boton.addActionListener(e -> {
+                    // si pulsas el que ya llevas puesto, se lo quitas
+                    gorroActual = nombre.equals(gorroActual) ? null : nombre;
+                    refrescarMascota();
+                });}
             panelBotones.add(boton);
         }
         JPanel zonaBotones = new JPanel(new BorderLayout());
+        zonaBotones.setPreferredSize(new Dimension(390, 300));
         zonaBotones.add(tituloAccesorios, BorderLayout.NORTH);
         zonaBotones.add(panelBotones, BorderLayout.CENTER);
 
@@ -112,30 +151,95 @@ public class Percha extends JFrame {
         JPanel panelInicio = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         panelInicio.add(zonaInicio);
 
-        // ---- MASCOTA ----
-        // Por ahora no tenemos la mascota elegida y vamos a dejar esto comentado que si no da error.
-        // mascota = new PanelMascota();
-        // mascota.setColorMascota(colorSeleccionado);
+        // MASCOTA
 
         // Provisional, para que el hueco no se colapse mientras no hay imagen:
-        JLabel huecoMascota = new JLabel("(aquí la mascota)", SwingConstants.CENTER);
-        huecoMascota.setPreferredSize(new Dimension(200, 160));
+        imagenMascota = new JLabel("", SwingConstants.CENTER);
 
         // ---- PANEL PRINCIPAL ----
-        JPanel panelPrincipal = new JPanel(new GridLayout(2, 1));
+        JPanel panelPrincipal = new JPanel();
+        panelPrincipal.setLayout(new BoxLayout(panelPrincipal, BoxLayout.Y_AXIS));
         panelPrincipal.add(panelArriba);
         panelPrincipal.add(zonaBotones);
         panelArriba.add(panelInicio, BorderLayout.NORTH);
-        panelArriba.add(huecoMascota, BorderLayout.CENTER);   // luego hay que poner aqui la mascota.
+        panelArriba.add(imagenMascota, BorderLayout.CENTER);   // luego hay que poner aqui la mascota.
         panelArriba.add(zonaColores, BorderLayout.SOUTH);
 
         this.add(panelPrincipal);
         this.setSize(430, 580);       
         this.setResizable(false);
         this.setLocationRelativeTo(null);
+        seleccionarColorEnCombo(colorSeleccionado);
     }
+    
+    private void refrescarMascota() {
+		// TODO Auto-generated method stub
+    	if (rutaMascotaActual == null) 
+    		return;
 
-    // ACCIONES DE LA PANTALLA, siempre que invoquemos un menu, vamos a tener que meter como actua cada opcion en esta clase.
+        ImageIcon base = new ImageIcon(rutaMascotaActual);
+        if (base.getIconWidth() <= 0) {
+            imagenMascota.setIcon(null);
+            imagenMascota.setText("falta " + rutaMascotaActual);
+            return;
+        }
+
+        int w = base.getIconWidth();
+        int h = base.getIconHeight();
+        int margen = (int) (h*MARGEN_ARRIBA);
+
+        //Ahora la zona la hemos hecho más grande y así el gorro no sale cortado
+        BufferedImage compuesta = new BufferedImage(w, h + margen, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = compuesta.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.setRenderingHint(RenderingHints.KEY_RENDERING,
+                RenderingHints.VALUE_RENDER_QUALITY);
+
+        // capa 1: la mascota
+        g.drawImage(base.getImage(), 0, margen, null);
+
+        // capa 2: el gorro, centrado y apoyado sobre la cabeza
+        if (gorroActual != null) {
+            ImageIcon gorro = new ImageIcon("gorros/" + gorroActual + ".png");
+            if (gorro.getIconWidth() > 0) {
+                int gw = (int) (w * ANCHO_GORRO);
+                int gh = gorro.getIconHeight() * gw / gorro.getIconWidth(); // mantiene proporcion
+                int x = (w - gw) / 2 + AJUSTE_X;
+                int y = margen + (int) (h * ALTURA_CABEZA) - gh + AJUSTE_Y;
+                g.drawImage(gorro.getImage(), x, y, gw, gh, null);
+            }
+        }
+        g.dispose();
+
+        // escalar para que quepa en el hueco
+        double factor = Math.min(220.0 / w, 180.0 / h);
+        Image escalada = compuesta.getScaledInstance(
+                (int) (w * factor), (int) (h * factor), Image.SCALE_SMOOTH);
+        imagenMascota.setIcon(new ImageIcon(escalada));
+        imagenMascota.setText("");
+    }
+	
+
+	private void seleccionarColorEnCombo(Color colorSeleccionado2) {
+		// TODO Auto-generated method stub
+		for (int i=0; i<comboColores.getItemCount(); i++) {
+			if (comboColores.getItemAt(i).getColor().equals(colorSeleccionado2)) {
+				comboColores.setSelectedIndex(i);
+				return;
+			}
+		}
+		comboColores.setSelectedIndex(0);
+	}
+
+	private void mostrarMascota(String rutaImagen) {
+		// TODO Auto-generated method stub
+		  rutaMascotaActual = rutaImagen;
+		    refrescarMascota();
+		
+	}
+
+	// ACCIONES DE LA PANTALLA, siempre que invoquemos un menu, vamos a tener que meter como actua cada opcion en esta clase.
     //Por que tal vez en el menu de la pantalla de inico tenemos que cambiar el ir a Inicio por no hacer nada, por que como ya estamos
     //ahi no vamos a querer que nos lo cambie. 
 

@@ -153,6 +153,12 @@ public class PrimeraVentana extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
+				String usuario = zonaUsername.getText().trim();
+				String pass = new String(zonaContraseña.getPassword()).trim();
+				if (usuario.isEmpty()|| pass.isEmpty()) {
+					JOptionPane.showMessageDialog(PrimeraVentana.this, "Rellena el usuario y la contraseña para continuar", "Faltan datos", JOptionPane.WARNING_MESSAGE);
+					return;
+				}
 				Inicio();
 			}
 		};
