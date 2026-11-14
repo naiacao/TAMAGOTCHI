@@ -147,7 +147,7 @@ public class Percha extends JFrame {
 
 	/** Vuelve a la pantalla principal. dispose() cierra SOLO esta ventana. */
     private void irAInicio() {
-    	    new Inicio().setVisible(true);
+    	    new Inicio(this.colorSeleccionado).setVisible(true);
     	    this.dispose();
     	
     }

@@ -53,8 +53,8 @@ public class Juego1 extends JDialog {
 		// Variables de la mascota
 		private int tamagotchiX = 60;
 		private int tamagotchiY = 200;
-		private int tamagotchiAncho = 30;
-		private int tamagotchiAlto = 30;
+		private int tamagotchiAncho = 25;
+		private int tamagotchiAlto = 25;
 
 		private double velocidadY = 0;
 		private final double gravedad = 0.6;
