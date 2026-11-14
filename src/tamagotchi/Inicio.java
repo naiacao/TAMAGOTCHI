@@ -23,7 +23,6 @@ import javax.swing.SwingUtilities;
 public class Inicio extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	private boolean dormido = false;
 
 	// Guarda el color seleccionado de la mascota para aplicarlo aquí y enviarlo a la pantalla de juegos
 	private Color colorMascota;
@@ -35,6 +34,10 @@ public class Inicio extends JFrame {
 	private JPanel panelTamagotchi = new JPanel(new BorderLayout());
 	private JPanel oscurecedor;
 	private Hiloenergia hiloenergia;
+	
+	private BotonRedondo btnalimentar;
+	private BotonRedondo btnjugar;
+	private BotonRedondo btndormir;
 
 	// CONSTRUCTOR 1: Por defecto (si se abre el juego desde cero, asigna amarillo)
 	public Inicio() {
@@ -56,6 +59,8 @@ public class Inicio extends JFrame {
 		this.setResizable(false);
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		
+		hiloenergia = new Hiloenergia();
 
 		// Creación de los paneles
 		JPanel panelPrincipal = new JPanel(new BorderLayout());
@@ -77,11 +82,11 @@ public class Inicio extends JFrame {
 		panelTamagotchi.setBorder(BorderFactory.createTitledBorder("Estado"));
 
 		// Creación de botones
-		BotonRedondo btnalimentar = new BotonRedondo("ALIMENTAR", new Color(76, 175, 80), new Color(46, 125, 50));
+		btnalimentar = new BotonRedondo("ALIMENTAR", new Color(76, 175, 80), new Color(46, 125, 50));
 		btnalimentar.setToolTipText("COMIDA");
-		BotonRedondo btnjugar = new BotonRedondo("JUGAR", new Color(63, 143, 208), new Color(31, 92, 143));
+		btnjugar = new BotonRedondo("JUGAR", new Color(63, 143, 208), new Color(31, 92, 143));
 		btnjugar.setToolTipText("JUGAR");
-		BotonRedondo btndormir = new BotonRedondo("DORMIR", new Color(255, 193, 7), new Color(199, 145, 0));
+		btndormir = new BotonRedondo("DORMIR", new Color(255, 193, 7), new Color(199, 145, 0));
 		btndormir.setToolTipText("DORMIR");
 
 		panelBotones.add(btnalimentar);
@@ -136,23 +141,25 @@ public class Inicio extends JFrame {
 		ActionListener listenerDormir = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (dormido) {
-					dormido = false;
+				if (hiloenergia.isDormido()) {
+					hiloenergia.reanudar();
 					oscurecedor.setVisible(false);
 					btndormir.setText("DORMIR");
 					btndormir.setToolTipText("DORMIR");
+					btnalimentar.setEnabled(true);
+					btnjugar.setEnabled(true);
 
-					if (hiloenergia != null) {
-						hiloenergia.interrupt();
-					}
+		
 				} else {
-					dormido = true;
+					btnalimentar.setEnabled(false);
+					btnjugar.setEnabled(false);
+					hiloenergia.dormir();
 					oscurecedor.setVisible(true);
 					btndormir.setText("DESPERTAR");
 					btndormir.setToolTipText("DESPERTAR");
+					 hiloenergia.arrancarSiHaceFalta();
 
-					hiloenergia = new Hiloenergia();
-					hiloenergia.start();
+				
 				}
 			}
 		};
@@ -162,6 +169,8 @@ public class Inicio extends JFrame {
 		panelPrincipal.add(capas, BorderLayout.CENTER);
 		panelPrincipal.add(panelBotones, BorderLayout.SOUTH);
 		this.add(panelPrincipal);
+		
+	
 	}
 
 	private JPanel crearFila(String texto, String rutaIcono, int valor, Color color, JProgressBar barra) {
@@ -223,23 +232,71 @@ public class Inicio extends JFrame {
 	}
 
 	public class Hiloenergia extends Thread {
+		private volatile boolean dormido = false;
+		private void despertarPorEnergia() {
+		    hiloenergia.reanudar();          // dormido = false + notifyAll()
+		    oscurecedor.setVisible(false);
+		    btndormir.setText("DORMIR");
+		    btndormir.setToolTipText("DORMIR");
+		    btnalimentar.setEnabled(true);
+		    btnjugar.setEnabled(true);
+		}
+		 
+		public synchronized void arrancarSiHaceFalta() {
+		    if (!isAlive()) {
+		        dormido = false;
+		        start();
+		    }
+		    dormido = true;
+		    notifyAll();
+		}
+		public synchronized void dormir() {
+	        	synchronized (this) {
+	        		  dormido = true;
+				}
+	         
+	        }
+
+	        public synchronized void reanudar() {
+	            dormido = false;
+	            notifyAll(); // despierta al hilo si estaba esperando
+	        }
+
+	        public synchronized boolean isDormido() {
+	            return dormido;
+	        }
+
 		@Override
 		public void run() {
-			while (!isInterrupted() && barraenergia.getValue() < 100) {
-				for (int i = 0; i < 100; i++) {
-					int value = i;
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						this.interrupt();
-						return;
-					}
-					SwingUtilities.invokeLater(() -> {
-						barraenergia.setValue(value);
-						barraenergia.setString(value + " / 100");
-					});
-				}
-			}
+		    while (!isInterrupted() && barraenergia.getValue() < 100) {
+		        synchronized (this) {
+		            while (!dormido && !isInterrupted()) {
+		                try {
+		                    wait();          // suelta el candado y espera el notify()
+		                } catch (InterruptedException e) {
+		                    return;
+		                }
+		            }
+		        }
+
+		        try {
+		            Thread.sleep(500);
+		        } catch (InterruptedException e) {
+		            return;
+		        }
+
+		        SwingUtilities.invokeLater(() -> {
+		            int v = barraenergia.getValue() + 40;
+		            if (v > 100) {
+		                v = 100;
+		            }
+		            barraenergia.setValue(v);
+		            barraenergia.setString(v + " / 100");
+		        });
+		    }
+		    if (barraenergia.getValue()>=100) {
+		    	despertarPorEnergia();  
+		    }
 		}
 	}
 
