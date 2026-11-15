@@ -38,6 +38,7 @@ public class Inicio extends JFrame {
 	private JPanel oscurecedor;
 	private Hiloenergia hiloenergia;
 	private Hilofelicidad hilofelicidad;
+	private Hiloinactividad hiloinactividad;
 	
 	private BotonRedondo btnalimentar;
 	private BotonRedondo btnjugar;
@@ -53,10 +54,6 @@ public class Inicio extends JFrame {
 		this.colorMascota = (colorMascota != null) ? colorMascota : new Color(255, 193, 7);
 		EstadoMascota.setColor(this.colorMascota);
 
-		// Añadir el menú
-		this.setJMenuBar(new MenuInicio(
-				e -> cerrarJuego(),
-				e -> cambiarUsuario()));
 
 		this.setTitle("TAMAGOCHI - Inicio");
 		this.setSize(430, 550);
@@ -80,7 +77,7 @@ public class Inicio extends JFrame {
 				BorderFactory.createTitledBorder(""),
 				BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
-		panelInfo.add(crearFila("Hambre", "fotos/POLLO.png", 100, new Color(255, 152, 0), barrahambre));
+		panelInfo.add(crearFila("Hambre", "fotos/POLLO.png", EstadoMascota.getHambre(), new Color(255, 152, 0), barrahambre));
 		panelInfo.add(crearFila("Energia", "fotos/RAYO.png", EstadoMascota.getEnergia(), new Color(76, 175, 80), barraenergia));
 		panelInfo.add(crearFila("Felicidad", "fotos/CORAZON.png", EstadoMascota.getFelicidad(), new Color(63, 143, 208), barrafelicidad));
 
@@ -190,6 +187,8 @@ public class Inicio extends JFrame {
 		mostrarMascota();
 		hiloenergia.arrancarSiHaceFalta();
 		hilofelicidad.start();
+		hiloinactividad = new Hiloinactividad();
+		hiloinactividad.start();
 	}
 
 	private void mostrarMascota() {
@@ -243,14 +242,15 @@ public class Inicio extends JFrame {
 	private void detenerHilos() {
 		if (hiloenergia != null) hiloenergia.interrupt();
 		if (hilofelicidad != null) hilofelicidad.interrupt();
+		if (hiloinactividad != null) hiloinactividad.interrupt();
 	}
 
 	private void irAComida() {
-		if (EstadoMascota.getEnergia() == 100) {
+		if (EstadoMascota.getHambre() >= 100) {
 			JOptionPane.showMessageDialog(
 					this,
-					"Tu mascota ya tiene la energía al máximo, por eso no puede comer ahora.",
-					"Energía al máximo",
+					"Tu mascota está llena, no tiene hambre ahora mismo.",
+					"Sin hambre",
 					JOptionPane.INFORMATION_MESSAGE);
 			return;
 		}
@@ -262,7 +262,7 @@ public class Inicio extends JFrame {
 	// Pasa el color actual guardado en Inicio a la pantalla JuegosClase
 	private void irAJuegos() {
 		boolean sinEnergia = EstadoMascota.getEnergia() <= 0;
-		boolean muchaHambre = EstadoMascota.getHambre() >= 100;
+		boolean muchaHambre = EstadoMascota.getHambre() <= 0;
 
 		if (sinEnergia && muchaHambre) {
 			JOptionPane.showMessageDialog(
@@ -334,7 +334,8 @@ public class Inicio extends JFrame {
 
 	public class Hiloenergia extends Thread {
 		private volatile boolean dormido = false;
-
+		private int ticksSueno = 0;
+		
 		private void despertarPorEnergia() {
 			despertar();
 			SwingUtilities.invokeLater(() -> {
@@ -392,6 +393,13 @@ public class Inicio extends JFrame {
 					EstadoMascota.setEnergia(v);
 					barraenergia.setValue(v);
 					barraenergia.setString(v + " / 100");
+					ticksSueno++;
+					if (ticksSueno % 5 == 0) { // el hambre baja 1 punto por cada 5 de energía ganada
+						int h = Math.max(0, EstadoMascota.getHambre() - 1);
+						EstadoMascota.setHambre(h);
+						barrahambre.setValue(h);
+						barrahambre.setString(h + " / 100");
+					}
 				});
 
 				if (barraenergia.getValue() >= 99 && isDormido()) {
@@ -423,6 +431,39 @@ public class Inicio extends JFrame {
 						EstadoMascota.setFelicidad(v);
 						barrafelicidad.setValue(v);
 						barrafelicidad.setString(v + " / 100");
+					});
+				}
+			}
+		}
+	}
+	
+	public class Hiloinactividad extends Thread {
+		private static final long TIEMPO_ESPERA_SIN_JUGAR_MS = 45000; // 45 s sin jugar antes de empezar a bajar
+		private static final long INTERVALO_DESCARGA_MS = 5000;       // baja 1 punto cada 5 s
+
+		@Override
+		public void run() {
+			while (!isInterrupted()) {
+				try {
+					Thread.sleep(INTERVALO_DESCARGA_MS);
+				} catch (InterruptedException e) {
+					return;
+				}
+
+				long sinJugar = System.currentTimeMillis() - EstadoMascota.getUltimoJuego();
+				boolean durmiendo = hiloenergia.isDormido();
+
+				if (!durmiendo && sinJugar >= TIEMPO_ESPERA_SIN_JUGAR_MS) {
+					SwingUtilities.invokeLater(() -> {
+						int e = Math.max(0, EstadoMascota.getEnergia() - 1);
+						EstadoMascota.setEnergia(e);
+						barraenergia.setValue(e);
+						barraenergia.setString(e + " / 100");
+
+						int h = Math.max(0, EstadoMascota.getHambre() - 1);
+						EstadoMascota.setHambre(h);
+						barrahambre.setValue(h);
+						barrahambre.setString(h + " / 100");
 					});
 				}
 			}

@@ -19,6 +19,7 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -180,7 +181,7 @@ public class Juego2 extends JDialog {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					if (!gameOver && puntuacion > 0) {
-						EstadoMascota.sumarFelicidad(puntuacion / 3);
+						EstadoMascota.sumarFelicidadGastandoEnergia(puntuacion/3);
 					} else {
 						EstadoMascota.registrarActividadJuego();
 					}
@@ -279,6 +280,18 @@ public class Juego2 extends JDialog {
 
 		// Reseteo todo para volver a jugar tras perder
 		private void reiniciarJuego() {
+			if (EstadoMascota.getEnergia() <= 0 || EstadoMascota.getHambre() <= 0) {
+				gameLoop.stop();
+				creadorMeteoros.stop();
+				JOptionPane.showMessageDialog(
+						Juego2.this,
+						"Tu mascota no puede seguir jugando: necesita comer o descansar.",
+						"Sin fuerzas",
+						JOptionPane.WARNING_MESSAGE);
+				Juego2.this.dispose();
+				return;
+			}
+			
 			naveX = ancho / 2 - naveAncho / 2;
 			lasers.clear();
 			meteoros.clear();
@@ -355,7 +368,7 @@ public class Juego2 extends JDialog {
 					naveY < m.y + m.tamano && naveY + naveAlto > m.y) {
 					if (!gameOver) {
 						gameOver = true;
-						EstadoMascota.sumarFelicidad(puntuacion / 3);
+						EstadoMascota.sumarFelicidadGastandoEnergia(puntuacion/3);
 					}
 				}
 

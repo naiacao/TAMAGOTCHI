@@ -18,6 +18,7 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -136,7 +137,7 @@ public class Juego1 extends JDialog {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					if (!gameOver && puntuacion > 0) { //para que se actualice la felicidad
-						EstadoMascota.sumarFelicidad(puntuacion * 5);
+						EstadoMascota.sumarFelicidadGastandoEnergia(puntuacion*5);
 					} else {
 						EstadoMascota.registrarActividadJuego();
 					}
@@ -188,6 +189,18 @@ public class Juego1 extends JDialog {
 		}
 
 		private void reiniciarJuego() {
+			if (EstadoMascota.getEnergia() <= 0 || EstadoMascota.getHambre() <= 0) {
+				gameLoop.stop();
+				creadorTuberias.stop();
+				JOptionPane.showMessageDialog(
+						Juego1.this,
+						"Tu mascota no puede seguir jugando: necesita comer o descansar.",
+						"Sin fuerzas",
+						JOptionPane.WARNING_MESSAGE);
+				Juego1.this.dispose();
+				return;
+			}
+			
 			tamagotchiY = 200;
 			velocidadY = 0;
 			tuberias.clear();
@@ -228,14 +241,14 @@ public class Juego1 extends JDialog {
 				if (colisiona(t) && !gameOver) {
 					gameOver = true;
 					// Transformamos los puntos conseguidos en felicidad (5 puntos por tubo superado)
-					EstadoMascota.sumarFelicidad(puntuacion * 5);
+					EstadoMascota.sumarFelicidadGastandoEnergia(puntuacion*5);
 				}
 			}
 
 			// Comprobamos si toca el suelo (los últimos 15 píxeles inferiores) sin haber chocado antes con un tubo
 			if (tamagotchiY + tamagotchiAlto >= alto - 15 && !gameOver) {
 				gameOver = true;
-				EstadoMascota.sumarFelicidad(puntuacion * 5);
+				EstadoMascota.sumarFelicidadGastandoEnergia(puntuacion*5);
 			}
 		}
 		private boolean colisiona(Tubo t) {

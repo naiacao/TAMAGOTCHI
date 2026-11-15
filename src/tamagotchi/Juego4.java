@@ -19,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
@@ -290,7 +291,7 @@ public class Juego4 extends JDialog {
 				}
 			}
 			gameOver = true;
-			EstadoMascota.sumarFelicidad(8);
+			EstadoMascota.sumarFelicidadGastandoEnergia(8);
 			textLabel.setText("¡Empate! (+8 felicidad)");
 		}
 	}
@@ -299,10 +300,10 @@ public class Juego4 extends JDialog {
 		gameOver = true;
 		if (ganador.equals(playerX)) {
 			victorias++;
-			EstadoMascota.sumarFelicidad(15);
+			EstadoMascota.sumarFelicidadGastandoEnergia(15);
 			textLabel.setText("¡Ganaste! (+15 felicidad)");
 		} else {
-			EstadoMascota.sumarFelicidad(3);
+			EstadoMascota.sumarFelicidadGastandoEnergia(3);
 			textLabel.setText("¡Ganó O! Pulsa ↻");
 		}
 	}
@@ -318,6 +319,19 @@ public class Juego4 extends JDialog {
 	}
 
 	private void reiniciarPartida() {
+		if (EstadoMascota.getEnergia() <= 0 || EstadoMascota.getHambre() <= 0) {
+			if (timerRival != null) {
+				timerRival.stop();
+			}
+			JOptionPane.showMessageDialog(
+					Juego4.this,
+					"Tu mascota no puede seguir jugando: necesita comer o descansar.",
+					"Sin fuerzas",
+					JOptionPane.WARNING_MESSAGE);
+			Juego4.this.dispose();
+			return;
+		}
+		
 		if (timerRival != null) {
 			timerRival.stop();
 		}
