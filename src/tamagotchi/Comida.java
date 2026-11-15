@@ -115,8 +115,19 @@ public class Comida extends JFrame {
 				
 						
 			boton.addActionListener(e -> {
+				if (EstadoMascota.getHambre() >= 100) {
+				    JOptionPane.showMessageDialog(
+				            Comida.this,
+				            "Tu mascota está llena, no puede comer más.",
+				            "Llena",
+				            JOptionPane.INFORMATION_MESSAGE);
+				    return;
+				}
+				
 		        int puntos = Integer.parseInt(puntosComida); // Convierte "10" a int 10
 		        Mascota.alimentar(puntos); // Suma los puntos a la mascota
+		        EstadoMascota.setHambre(EstadoMascota.getHambre() + puntos);
+		        EstadoMascota.setEnergia(EstadoMascota.getEnergia() + puntos / 2);
 		        
 		        comidaBoca.setIcon(new ImageIcon(ftBien)); //poner la imagen en la boca
 		        nam.setText("ÑAM, ÑAM !!");
@@ -132,12 +143,6 @@ public class Comida extends JFrame {
 			
 			
 			gridComida.add(boton);
-			
-			
-			
-			
-			
-			
 			
 		}
 		

@@ -133,26 +133,7 @@ public class Percha extends JFrame {
         zonaBotones.add(tituloAccesorios, BorderLayout.NORTH);
         zonaBotones.add(panelBotones, BorderLayout.CENTER);
 
-        // ---- BOTON INICIO ----
-        JButton botonInicio = new JButton("⌂");
-        botonInicio.setFont(new Font("SansSerif", Font.BOLD, 26));
-        botonInicio.setPreferredSize(new Dimension(50, 50));
-        botonInicio.setFocusPainted(false);
-        botonInicio.addActionListener(e -> irAInicio());
-
-        JLabel textoInicio = new JLabel("INICIO", SwingConstants.CENTER);
-        textoInicio.setFont(new Font("Monospaced", Font.PLAIN, 10));
-
-        JPanel zonaInicio = new JPanel();
-        zonaInicio.setLayout(new BoxLayout(zonaInicio, BoxLayout.Y_AXIS));
-        botonInicio.setAlignmentX(0.5f);
-        textoInicio.setAlignmentX(0.5f);
-        zonaInicio.add(botonInicio);
-        zonaInicio.add(textoInicio);
-
-        JPanel panelInicio = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        panelInicio.add(zonaInicio);
-
+       
         // MASCOTA
 
         // Provisional, para que el hueco no se colapse mientras no hay imagen:
@@ -163,7 +144,6 @@ public class Percha extends JFrame {
         panelPrincipal.setLayout(new BoxLayout(panelPrincipal, BoxLayout.Y_AXIS));
         panelPrincipal.add(panelArriba);
         panelPrincipal.add(zonaBotones);
-        panelArriba.add(panelInicio, BorderLayout.NORTH);
         panelArriba.add(imagenMascota, BorderLayout.CENTER);   // luego hay que poner aqui la mascota.
         panelArriba.add(zonaColores, BorderLayout.SOUTH);
 

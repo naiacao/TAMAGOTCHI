@@ -105,11 +105,16 @@ public class Inicio extends JFrame {
 		panelBotones.add(btndormir);
 
 		BotonCircular botonpercha = new BotonCircular("fotos/PERCHA.png", 30);
+		botonpercha.setToolTipText("Percha");
 		BotonCircular botonusuario = new BotonCircular("fotos/USUARIO.png", 30);
+		botonusuario.setToolTipText("Cambiar usuario");
 		BotonCircular botonranking = new BotonCircular("fotos/COPA.png", 40);
+		botonranking.setToolTipText("Ranking");
 
 		//BotonDeMusica
 		btnmusica = new BotonCircular("fotos/MUSICA.png", 30);
+		
+		btnmusica.setToolTipText("Volumen música");
 		
 		// Panel izquierdo: usuario + percha
 		JPanel zonabotonIzq = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
