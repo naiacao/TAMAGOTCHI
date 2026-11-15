@@ -11,7 +11,8 @@ import javax.swing.ImageIcon;
 public class EstadoMascota {
 	private static Color color = Color.white;
 	private static String gorro = null;
-	private static int energia = 0;
+	private static int hambre = 0; // 0 = sin hambre, 100 = muerta de hambre
+	private static int energia = 100;
 	private static int felicidad = 0;
 	private static long ultimoJuego = System.currentTimeMillis();
 	
@@ -24,6 +25,12 @@ public class EstadoMascota {
 		}
 	}
 
+	public static int getHambre() {
+		return hambre;
+	}
+	public static void setHambre(int hambre) {
+		EstadoMascota.hambre = hambre;
+	}
 	public static String getGorro() { 
 		return gorro; 
 	}
@@ -105,6 +112,17 @@ public class EstadoMascota {
 		double factor = Math.min((double) anchoMax / w, (double) altoMax / (h + margen));
 		return new ImageIcon(compuesta.getScaledInstance(
 				(int) (w * factor), (int) ((h + margen) * factor), Image.SCALE_SMOOTH));
+	}
+	
+	public static void sumarFelicidadGastandoEnergia(int cantidad) {
+		int antes = getFelicidad();
+		sumarFelicidad(cantidad);
+		int ganada = getFelicidad() - antes;
+
+		if (ganada > 0) {
+			setEnergia(Math.max(0, getEnergia() - ganada));
+			setHambre(getHambre() + ganada); // la energía baja y el hambre sube lo mismo
+		}
 	}
 
 	public EstadoMascota() {

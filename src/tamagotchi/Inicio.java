@@ -80,7 +80,7 @@ public class Inicio extends JFrame {
 				BorderFactory.createTitledBorder(""),
 				BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
-		panelInfo.add(crearFila("Hambre", "fotos/POLLO.png", 0, new Color(255, 152, 0), barrahambre));
+		panelInfo.add(crearFila("Hambre", "fotos/POLLO.png", 100, new Color(255, 152, 0), barrahambre));
 		panelInfo.add(crearFila("Energia", "fotos/RAYO.png", EstadoMascota.getEnergia(), new Color(76, 175, 80), barraenergia));
 		panelInfo.add(crearFila("Felicidad", "fotos/CORAZON.png", EstadoMascota.getFelicidad(), new Color(63, 143, 208), barrafelicidad));
 
@@ -165,6 +165,12 @@ public class Inicio extends JFrame {
 					btnjugar.setEnabled(true);
 					mostrarMascota();
 				} else {
+					if (EstadoMascota.getEnergia() >= 100) {
+						JOptionPane.showMessageDialog(
+								Inicio.this,
+								"Tu mascota ya tiene la energía al máximo.");
+						return;
+					}
 					btnalimentar.setEnabled(false);
 					btnjugar.setEnabled(false);
 					hiloenergia.dormir();
@@ -240,6 +246,14 @@ public class Inicio extends JFrame {
 	}
 
 	private void irAComida() {
+		if (EstadoMascota.getEnergia() == 100) {
+			JOptionPane.showMessageDialog(
+					this,
+					"Tu mascota ya tiene la energía al máximo, por eso no puede comer ahora.",
+					"Energía al máximo",
+					JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
 		detenerHilos();
 		new Comida().setVisible(true);
 		this.dispose();
@@ -247,6 +261,34 @@ public class Inicio extends JFrame {
 
 	// Pasa el color actual guardado en Inicio a la pantalla JuegosClase
 	private void irAJuegos() {
+		boolean sinEnergia = EstadoMascota.getEnergia() <= 0;
+		boolean muchaHambre = EstadoMascota.getHambre() >= 100;
+
+		if (sinEnergia && muchaHambre) {
+			JOptionPane.showMessageDialog(
+					this,
+					"Tu mascota no tiene energía y además está hambrienta.\nDebe comer antes de hacer nada más.",
+					"Sin energía y con hambre",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		if (muchaHambre) {
+			JOptionPane.showMessageDialog(
+					this,
+					"Tu mascota tiene mucha hambre, por eso no puede jugar.\nHay que darle de comer.",
+					"Hambre",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		if (sinEnergia) {
+			JOptionPane.showMessageDialog(
+					this,
+					"No tienes energía, por eso no puedes jugar.\nDeja que tu mascota duerma para recuperarla.",
+					"Sin energía",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
 		detenerHilos();
 		EstadoMascota.registrarActividadJuego();
 		new JuegosClase(this, this.colorMascota).setVisible(true);
@@ -328,7 +370,7 @@ public class Inicio extends JFrame {
 
 		@Override
 		public void run() {
-			while (!isInterrupted() && barraenergia.getValue() < 100) {
+			while (!isInterrupted()) {
 				synchronized (this) {
 					while (!dormido && !isInterrupted()) {
 						try {
@@ -346,17 +388,15 @@ public class Inicio extends JFrame {
 				}
 
 				SwingUtilities.invokeLater(() -> {
-					int v = barraenergia.getValue() + 1;
-					if (v > 100) {
-						v = 100;
-					}
+					int v = Math.min(100, barraenergia.getValue() + 1);
 					EstadoMascota.setEnergia(v);
 					barraenergia.setValue(v);
 					barraenergia.setString(v + " / 100");
 				});
-			}
-			if (!isInterrupted() && barraenergia.getValue() >= 100) {
-				despertarPorEnergia();  
+
+				if (barraenergia.getValue() >= 99 && isDormido()) {
+					despertarPorEnergia();
+				}
 			}
 		}
 	}
