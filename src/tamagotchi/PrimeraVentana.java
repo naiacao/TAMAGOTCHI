@@ -115,13 +115,17 @@ public class PrimeraVentana extends JFrame {
 
 		panelUsername.add(panelPequeñoUsername, BorderLayout.CENTER);
 		
-		//FOTO DE LA IZQUIERDA DE USERNAME
-		JLabel fotoUsername = new JLabel("AQUI FOTO"); // el icono de la izquierda
+		//FOTO DE LA IZQUIERDA USERNAME
+		JLabel fotoUsername = new JLabel();
+		fotoUsername.setIcon(new ImageIcon(
+		        new ImageIcon("fotos/usuario.png").getImage().getScaledInstance(45, 45, Image.SCALE_SMOOTH)));
 		panelUsername.add(fotoUsername, BorderLayout.WEST);
 		fotoUsername.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 15));
 		
 		//LA FOTO DE LA IZQUIERDA
-		JLabel foto = new JLabel("AQUI FOTO");
+		JLabel foto = new JLabel();
+		foto.setIcon(new ImageIcon(
+		        new ImageIcon("fotos/candado.png").getImage().getScaledInstance(45, 45, Image.SCALE_SMOOTH)));
 		panelContraseña.add(foto, BorderLayout.WEST);
 		foto.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 15)); //Borde entre foto y password
 		

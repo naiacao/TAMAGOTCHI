@@ -24,9 +24,9 @@ public class JuegosClase extends JFrame {
 	// Variable para guardar el color de la mascota que nos llega desde Inicio o Percha
 	private Color colorMascota;
 
-	// Constructor 1: Sin parámetros (pone amarillo por defecto por seguridad)
+	// Constructor 1: Le metemos el estado de la mascota actual
 	public JuegosClase() {
-		this(null, new Color(255, 193, 7));
+		this(null,EstadoMascota.getColor());
 	}
 
 	// Constructor 2: Recibe solo el color
@@ -37,7 +37,12 @@ public class JuegosClase extends JFrame {
 	// Constructor 3: Recibe el JFrame padre (Inicio) y el color seleccionado para la mascota
 	public JuegosClase(JFrame padre, Color colorMascota) {
 		// Si por alguna razón llega nulo, le asigno el amarillo por defecto
-		this.colorMascota = (colorMascota != null) ? colorMascota : new Color(255, 193, 7);
+		if (colorMascota != null) {
+		    this.colorMascota = colorMascota;
+		} else {
+		    this.colorMascota = new Color(255, 193, 7);
+		}
+		EstadoMascota.setColor(this.colorMascota);
 
 		this.setTitle("TAMAGOCHI - Juegos");
 		this.setSize(430, 550);
@@ -52,6 +57,11 @@ public class JuegosClase extends JFrame {
 		// --- PANEL SUPERIOR (HEADER) ---
 		JPanel panelSuperior = new JPanel(new BorderLayout());
 
+		//Para guardar el muñeco con gorro porseacaso
+		JLabel imagenMascota = new JLabel("", SwingConstants.CENTER);
+		imagenMascota.setIcon(EstadoMascota.componerMascota(120, 100));
+		panelPrincipal.add(imagenMascota, BorderLayout.SOUTH);
+		
 		// Botón con icono de 3 puntos verticales para volver atrás
 		JButton btnVolver = new JButton("⋮");
 		btnVolver.setFont(new Font("SansSerif", Font.BOLD, 22));

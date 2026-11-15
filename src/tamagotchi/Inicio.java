@@ -5,10 +5,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -41,16 +43,23 @@ public class Inicio extends JFrame {
 	private BotonRedondo btnalimentar;
 	private BotonRedondo btnjugar;
 	private BotonRedondo btndormir;
+	
+	//para poder poner el antifaz
+	private static final double ANCHO_ANTIFAZ = 0.6;
+	private static final double ALTURA_OJOS = 0.45;
+	
+	
 
 	// CONSTRUCTOR 1: Por defecto (si se abre el juego desde cero, asigna amarillo)
 	public Inicio() {
-		this(new Color(255, 193, 7));
+		this(EstadoMascota.getColor());
 	}
 
 	// CONSTRUCTOR 2: Recibe el color seleccionado desde la pantalla Percha
 	public Inicio(Color colorMascota) {
 		// Asignamos el color recibido (o amarillo por seguridad si llega nulo)
 		this.colorMascota = (colorMascota != null) ? colorMascota : new Color(255, 193, 7);
+		EstadoMascota.setColor(this.colorMascota);
 
 		// Añadir el menú
 		this.setJMenuBar(new MenuInicio(
@@ -173,7 +182,7 @@ public class Inicio extends JFrame {
 					btndormir.setToolTipText("DORMIR");
 					btnalimentar.setEnabled(true);
 					btnjugar.setEnabled(true);
-
+					mostrarMascota();  //llamamos al metodo para el tema antifaz
 		
 				} else {
 					btnalimentar.setEnabled(false);
@@ -182,7 +191,7 @@ public class Inicio extends JFrame {
 					oscurecedor.setVisible(true);
 					btndormir.setText("DESPERTAR");
 					btndormir.setToolTipText("DESPERTAR");
-					
+					mostrarMascota(); //llamamos al metodo para el tema atnfiaz
 
 				
 				}
@@ -203,42 +212,38 @@ public class Inicio extends JFrame {
 
 	private void mostrarMascota() { //Este es el metodo que nos va a buscar el PNG según el color
 		// TODO Auto-generated method stub
-		String nombre = nombreArchivoColor(colorMascota);
-		ImageIcon icono = new ImageIcon("fotos/"+ nombre + ".png");
-		if (icono.getIconWidth() <= 0) {
-	        imagenMascota.setIcon(null);
-	        imagenMascota.setOpaque(true);
-	        imagenMascota.setBackground(new Color(235, 235, 235));
-	        imagenMascota.setText("falta fotos/" + nombre + ".png");
-	        return;
-	    } 
-		// Ahora es más o menos lo mismo que lo de percha, para el tema tamaño y tal
-		int anchoMax = 200, altoMax = 180;
-	    int w = icono.getIconWidth(), h = icono.getIconHeight();
-	    double factor = Math.min((double) anchoMax / w, (double) altoMax / h);
-	    int nuevoW = (int) (w * factor);
-	    int nuevoH = (int) (h * factor);
+		 ImageIcon icono = EstadoMascota.componerMascota(200, 180);
+		    if (icono == null) {
+		        imagenMascota.setIcon(null);
+		        imagenMascota.setText("falta imagen de mascota");
+		        return;
+		    }
+		    if (hiloenergia.isDormido()) {
+		    	ImageIcon antifaz = new ImageIcon("fotos/antifaz_dormir.png");
+		    	//IAG (CLAUDE)
+		    	if (antifaz.getIconWidth() > 0) {
+		            int iw = icono.getIconWidth();
+		            int ih = icono.getIconHeight();
 
-	    Image escalada = icono.getImage().getScaledInstance(nuevoW, nuevoH, Image.SCALE_REPLICATE);
-	    imagenMascota.setIcon(new ImageIcon(escalada));
-	    imagenMascota.setText("");
-		
-	}
+		            BufferedImage conAntifaz = new BufferedImage(iw, ih, BufferedImage.TYPE_INT_ARGB);
+		            Graphics2D g = conAntifaz.createGraphics();
+		            g.drawImage(icono.getImage(), 0, 0, null);
 
-	private String nombreArchivoColor(Color c) {
-		// TODO Auto-generated method stub
-		if (c.equals(Color.white))            return "Blanco";
-	    if (c.equals(Color.yellow))           return "Amarillo";
-	    if (c.equals(Color.orange))           return "Naranja";
-	    if (c.equals(Color.pink))             return "Rosa";
-	    if (c.equals(Color.red))              return "Rojo";
-	    if (c.equals(new Color(105, 12, 181))) return "Morado";
-	    if (c.equals(Color.blue))             return "Azul";
-	    if (c.equals(new Color(15, 245, 231))) return "Mentoso";
-	    if (c.equals(Color.green))            return "Verde";
-	    if (c.equals(Color.black))            return "Negro";
-	    return "Blanco";
-	}
+		            int aw = (int) (iw * 0.64);                               // ancho del antifaz
+		            int ah = antifaz.getIconHeight() * aw / antifaz.getIconWidth();
+		            int x = (iw - aw) / 2;
+		            int y = (int) (ih * 0.49) - ah / 2; //para cambiar la altura donde esta  
+		            //si queremos que eesté más arriba poner un numero más bajo
+		            g.drawImage(antifaz.getImage(), x, y, aw, ah, null);
+		            g.dispose();
+
+		            icono = new ImageIcon(conAntifaz);
+		        }//FIN DE USO DE IAG
+		    }
+		    imagenMascota.setIcon(icono);
+		    imagenMascota.setText("");
+		}
+
 
 	private JPanel crearFila(String texto, String rutaIcono, int valor, Color color, JProgressBar barra) {
 		Image img = new ImageIcon(rutaIcono).getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH);
@@ -313,6 +318,7 @@ public class Inicio extends JFrame {
 		    btndormir.setToolTipText("DORMIR");
 		    btnalimentar.setEnabled(true);
 		    btnjugar.setEnabled(true);
+		    SwingUtilities.invokeLater(()-> mostrarMascota());
 		}
 		 
 		public synchronized void arrancarSiHaceFalta() {

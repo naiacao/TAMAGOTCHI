@@ -38,7 +38,7 @@ public class Percha extends JFrame {
     		"gorro1", "gorro2", "gorro3", "gorro4", "gorro5", "gorro6", "gorro7", "gorro8", "gorro9"
     };
     private String rutaMascotaActual;
-    private String gorroActual = null;
+    private String gorroActual = EstadoMascota.getGorro();
     
     //Ajustes para el tamaño del gorro un poco a ojo
     private static final double ANCHO_GORRO   = 0.42; // ancho del gorro respecto a la mascota (pequeño)
@@ -47,7 +47,7 @@ public class Percha extends JFrame {
     private static final int    AJUSTE_Y      = 0;    // mover arriba (-) o abajo (+), en pixeles
     private static final double MARGEN_ARRIBA = 0.30;
     public Percha() {
-    	this(Color.white);
+    	this(EstadoMascota.getColor());
     }
 
     public Percha(Color colorInicial) {
@@ -79,6 +79,7 @@ public class Percha extends JFrame {
             ColorMascota sel = (ColorMascota) comboColores.getSelectedItem();
             if (sel != null) {
                 colorSeleccionado = sel.getColor();
+                EstadoMascota.setColor(colorSeleccionado);
                 mostrarMascota(sel.getRutaImagen());
             }
         });
@@ -122,6 +123,7 @@ public class Percha extends JFrame {
                 boton.addActionListener(e -> {
                     // si pulsas el que ya llevas puesto, se lo quitas
                     gorroActual = nombre.equals(gorroActual) ? null : nombre;
+                    EstadoMascota.setGorro(gorroActual);
                     refrescarMascota();
                 });}
             panelBotones.add(boton);
@@ -247,6 +249,8 @@ public class Percha extends JFrame {
 		// TODO Auto-generated method stub
     	 new PrimeraVentana().setVisible(true);
     	  this.dispose();
+    	  //Mas adelante mirar si queremos que un usuario empiece sin gorro poner
+    	  //EstadoMascota.setGorro(null);
 	}
 
 	/** Vuelve a la pantalla principal. dispose() cierra SOLO esta ventana. */
