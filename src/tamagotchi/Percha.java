@@ -201,7 +201,7 @@ public class Percha extends JFrame {
         // capa 1: la mascota
         g.drawImage(base.getImage(), 0, margen, null);
 
-        // capa 2: el gorro, centrado y apoyado sobre la cabeza
+     // capa 2: el gorro, centrado y apoyado sobre la cabeza
         if (gorroActual != null) {
             ImageIcon gorro = new ImageIcon("gorros/" + gorroActual + ".png");
             if (gorro.getIconWidth() > 0) {

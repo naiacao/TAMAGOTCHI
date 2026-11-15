@@ -2,21 +2,19 @@ package tamagotchi;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 
-// Mi pantalla del menú principal con la selección de los 3 minijuegos
+// Mi pantalla del menú principal con la selección de los 4 minijuegos
 public class JuegosClase extends JFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -26,7 +24,7 @@ public class JuegosClase extends JFrame {
 
 	// Constructor 1: Le metemos el estado de la mascota actual
 	public JuegosClase() {
-		this(null,EstadoMascota.getColor());
+		this(null, EstadoMascota.getColor());
 	}
 
 	// Constructor 2: Recibe solo el color
@@ -36,76 +34,48 @@ public class JuegosClase extends JFrame {
 
 	// Constructor 3: Recibe el JFrame padre (Inicio) y el color seleccionado para la mascota
 	public JuegosClase(JFrame padre, Color colorMascota) {
-		// Si por alguna razón llega nulo, le asigno el amarillo por defecto
 		if (colorMascota != null) {
-		    this.colorMascota = colorMascota;
+			this.colorMascota = colorMascota;
 		} else {
-		    this.colorMascota = new Color(255, 193, 7);
+			this.colorMascota = new Color(255, 193, 7);
 		}
 		EstadoMascota.setColor(this.colorMascota);
+
+		// Mismo menú superior que en Comida y Percha (añadido antes de setSize)
+		this.setJMenuBar(new MenuJuego(
+				e -> irAInicio(),
+				e -> cerrarJuego(),
+				e -> cambiarUsuario()));
 
 		this.setTitle("TAMAGOCHI - Juegos");
 		this.setSize(430, 550);
 		this.setResizable(false);
-		this.setLocationRelativeTo(padre); // Se posiciona respecto al marco padre o centrado si es null
+		this.setLocationRelativeTo(padre);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 		// Panel contenedor principal de la interfaz
 		JPanel panelPrincipal = new JPanel(new BorderLayout(10, 15));
 		panelPrincipal.setBorder(BorderFactory.createEmptyBorder(15, 15, 20, 15));
 
-		// --- PANEL SUPERIOR (HEADER) ---
-		JPanel panelSuperior = new JPanel(new BorderLayout());
-
-		//Para guardar el muñeco con gorro porseacaso
-		JLabel imagenMascota = new JLabel("", SwingConstants.CENTER);
-		imagenMascota.setIcon(EstadoMascota.componerMascota(120, 100));
-		panelPrincipal.add(imagenMascota, BorderLayout.SOUTH);
-		
-		// Botón con icono de 3 puntos verticales para volver atrás
-		JButton btnVolver = new JButton("⋮");
-		btnVolver.setFont(new Font("SansSerif", Font.BOLD, 22));
-		btnVolver.setFocusPainted(false);
-		btnVolver.setContentAreaFilled(false);
-		btnVolver.setBorderPainted(false);
-		btnVolver.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		btnVolver.setToolTipText("Volver a Inicio");
-
-		btnVolver.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				volverAInicio();
-			}
-		});
-
+		// --- PANEL SUPERIOR (TÍTULO CENTRADO) ---
 		JLabel lblTitulo = new JLabel("SALA DE JUEGOS", SwingConstants.CENTER);
 		lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 20));
 		lblTitulo.setForeground(new Color(63, 143, 208));
-
-		// Panel invisible a la derecha para equilibrar el botón de volver y dejar el título centrado
-		JPanel panelEspacio = new JPanel();
-		panelEspacio.setPreferredSize(btnVolver.getPreferredSize());
-		panelEspacio.setOpaque(false);
-
-		panelSuperior.add(btnVolver, BorderLayout.WEST);
-		panelSuperior.add(lblTitulo, BorderLayout.CENTER);
-		panelSuperior.add(panelEspacio, BorderLayout.EAST);
-
-		panelPrincipal.add(panelSuperior, BorderLayout.NORTH);
+		panelPrincipal.add(lblTitulo, BorderLayout.NORTH);
 
 		// --- PANEL DE BOTONES DE LOS MINIJUEGOS ---
-		JPanel panelJuegos = new JPanel(new GridLayout(3, 1, 10, 15));
+		JPanel panelJuegos = new JPanel(new GridLayout(4, 1, 10, 12));
 		panelJuegos.setBorder(BorderFactory.createTitledBorder("Selecciona un juego"));
 
 		BotonRedondo btnJuego1 = new BotonRedondo("JUEGO 1", new Color(63, 143, 208), new Color(31, 92, 143));
 		BotonRedondo btnJuego2 = new BotonRedondo("JUEGO 2", new Color(76, 175, 80), new Color(46, 125, 50));
 		BotonRedondo btnJuego3 = new BotonRedondo("JUEGO 3", new Color(255, 193, 7), new Color(199, 145, 0));
+		BotonRedondo btnJuego4 = new BotonRedondo("JUEGO 4", new Color(171, 71, 188), new Color(123, 31, 162));
 
 		// --- EVENTO JUEGO 1: Flappy Bird ---
 		btnJuego1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// Le paso el color de la mascota para que la dibuje con ese tono
 				Juego1 dialog = new Juego1(JuegosClase.this, colorMascota);
 				dialog.setVisible(true);
 			}
@@ -115,7 +85,6 @@ public class JuegosClase extends JFrame {
 		btnJuego2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// Le paso el color de la mascota a la nave espacial
 				Juego2 dialog = new Juego2(JuegosClase.this, colorMascota);
 				dialog.setVisible(true);
 			}
@@ -125,8 +94,16 @@ public class JuegosClase extends JFrame {
 		btnJuego3.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// Le paso el color de la mascota a la serpiente
 				Juego3 dialog = new Juego3(JuegosClase.this, colorMascota);
+				dialog.setVisible(true);
+			}
+		});
+
+		// --- EVENTO JUEGO 4: 3 en Raya ---
+		btnJuego4.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Juego4 dialog = new Juego4(JuegosClase.this, colorMascota);
 				dialog.setVisible(true);
 			}
 		});
@@ -134,16 +111,41 @@ public class JuegosClase extends JFrame {
 		panelJuegos.add(btnJuego1);
 		panelJuegos.add(btnJuego2);
 		panelJuegos.add(btnJuego3);
+		panelJuegos.add(btnJuego4);
 
 		panelPrincipal.add(panelJuegos, BorderLayout.CENTER);
+
+		// Mascota con gorro en la parte inferior
+		JLabel imagenMascota = new JLabel("", SwingConstants.CENTER);
+		imagenMascota.setIcon(EstadoMascota.componerMascota(120, 100));
+		panelPrincipal.add(imagenMascota, BorderLayout.SOUTH);
 
 		this.add(panelPrincipal);
 	}
 
-	// Al hacer clic en el botón superior, vuelvo a la ventana Inicio manteniendo el color de la mascota
-	private void volverAInicio() {
-		Inicio inicio = new Inicio(colorMascota);
-		inicio.setVisible(true);
+	/** Vuelve a la pantalla principal manteniendo el color de la mascota. */
+	private void irAInicio() {
+		new Inicio(this.colorMascota).setVisible(true);
 		this.dispose();
+	}
+
+	/** Vuelve a la pantalla de login para cambiar de usuario. */
+	private void cambiarUsuario() {
+		new PrimeraVentana().setVisible(true);
+		this.dispose();
+	}
+
+	/** Cierra el juego entero, pidiendo confirmación antes. */
+	private void cerrarJuego() {
+		int opcion = JOptionPane.showConfirmDialog(
+				this,
+				"¿Seguro que quieres cerrar el juego?",
+				"Cerrar juego",
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE);
+
+		if (opcion == JOptionPane.YES_OPTION) {
+			System.exit(0);
+		}
 	}
 }

@@ -70,7 +70,7 @@ public class Juego2 extends JDialog {
 		private long ultimoDisparo = 0;
 
 		// Sistema de Power-Ups (1 = Simple, 2 = Doble, 3 = Triple)
-		private int nivelDisparo = 1; 
+		private int nivelDisparo = 1;
 		private long tiempoFinPowerUp = 0;
 
 		// Control de estados del juego y los puntos
@@ -167,7 +167,7 @@ public class Juego2 extends JDialog {
 			});
 			this.add(btnPausa);
 
-			// --- Botón de Salir ---
+			// --- Botón de Salir (X igual que en Juego 1 y Juego 3) ---
 			btnSalir = new JButton("X");
 			btnSalir.setFont(new Font("SansSerif", Font.BOLD, 14));
 			btnSalir.setBounds(ancho - 55, 10, 45, 30);
@@ -179,6 +179,11 @@ public class Juego2 extends JDialog {
 			btnSalir.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					if (!gameOver && puntuacion > 0) {
+						EstadoMascota.sumarFelicidad(puntuacion / 3);
+					} else {
+						EstadoMascota.registrarActividadJuego();
+					}
 					// Detengo los timers para no dejar tareas corriendo en segundo plano
 					gameLoop.stop();
 					creadorMeteoros.stop();
@@ -244,7 +249,7 @@ public class Juego2 extends JDialog {
 
 			long ahora = System.currentTimeMillis();
 			if (ahora - ultimoDisparo > 180) {
-				
+
 				// Según mi nivel de power-up genero 1, 2 o 3 láseres a la vez
 				if (nivelDisparo == 1) {
 					lasers.add(new Laser(naveX + naveAncho / 2 - 2, naveY));
@@ -325,7 +330,7 @@ public class Juego2 extends JDialog {
 
 				if (naveX < p.x + p.tamano && naveX + naveAncho > p.x &&
 					naveY < p.y + p.tamano && naveY + naveAlto > p.y) {
-					
+
 					if (nivelDisparo < 3) {
 						nivelDisparo++;
 					}
@@ -348,7 +353,10 @@ public class Juego2 extends JDialog {
 				// Choque contra la nave = Game Over
 				if (naveX < m.x + m.tamano && naveX + naveAncho > m.x &&
 					naveY < m.y + m.tamano && naveY + naveAlto > m.y) {
-					gameOver = true;
+					if (!gameOver) {
+						gameOver = true;
+						EstadoMascota.sumarFelicidad(puntuacion / 3);
+					}
 				}
 
 				if (m.y > alto) {
@@ -362,7 +370,7 @@ public class Juego2 extends JDialog {
 					Laser l = itL.next();
 					if (l.x < m.x + m.tamano && l.x + l.ancho > m.x &&
 						l.y < m.y + m.tamano && l.y + l.alto > m.y) {
-						
+
 						itL.remove();
 						itMeteoro.remove();
 						puntuacion += 10;

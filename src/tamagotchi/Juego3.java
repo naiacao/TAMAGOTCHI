@@ -145,7 +145,11 @@ public class Juego3 extends JDialog {
 			btnSalir.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					// Paro el timer para no dejar procesos colgados por ahí
+					if (!gameOver && puntuacion > 0) {
+						EstadoMascota.sumarFelicidad(puntuacion / 2);
+					} else {
+						EstadoMascota.registrarActividadJuego();
+					}
 					if (gameLoop != null) {
 						gameLoop.stop();
 					}
@@ -270,14 +274,20 @@ public class Juego3 extends JDialog {
 			// ¿Nos hemos mordido la cola? Game over
 			for (int i = 0; i < snakeBody.size(); i++) {
 				if (collision(snakeHead, snakeBody.get(i))) {
-					gameOver = true;
+					if (!gameOver) {
+						gameOver = true;
+						EstadoMascota.sumarFelicidad(puntuacion / 2);
+					}
 				}
 			}
 
 			// ¿Choque contra la pared? Game over
 			if (snakeHead.x < 0 || snakeHead.x >= (ancho / tileSize) ||
 				snakeHead.y < 0 || snakeHead.y >= (alto / tileSize)) {
-				gameOver = true;
+				if (!gameOver) {
+					gameOver = true;
+					EstadoMascota.sumarFelicidad(puntuacion / 2);
+				}
 			}
 		}
 
