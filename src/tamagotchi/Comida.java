@@ -2,6 +2,7 @@ package tamagotchi;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 
 import javax.swing.BorderFactory;
@@ -75,9 +76,14 @@ public class Comida extends JFrame {
 		parteMuñeco.add(imagenMascota, BorderLayout.CENTER);
 		
 		// texto ñam
-		JLabel nam = new JLabel("", JLabel.LEFT);
+		JPanel panelNam = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 75));
+		panelNam.setOpaque(false);
+		JLabel nam = new JLabel("");
 		nam.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 15));
-		panelBoca.add(nam);
+		nam.setBackground(Color.white);
+		nam.setOpaque(false);
+		panelNam.add(nam);
+		panelBoca.add(panelNam);
 		
 		
 		//parte abajo comida
@@ -96,7 +102,7 @@ public class Comida extends JFrame {
 			
 			
 			
-			//IA 80-83
+			//IA 99-102
 			JButton boton = new JButton("<html><center><b>" 
 			+ comida + "</b><br><small>+" 
 			+ puntosComida + "</small></center></html>");
@@ -131,11 +137,15 @@ public class Comida extends JFrame {
 		        
 		        comidaBoca.setIcon(new ImageIcon(ftBien)); //poner la imagen en la boca
 		        nam.setText("ÑAM, ÑAM !!");
+		        nam.setOpaque(true);
+		        nam.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 		        
 		        // la imagen se va al pasar un tiempo
 		        Timer temporizador = new Timer(500, ev -> {
 		            comidaBoca.setIcon(null); //quitar la foto: ponerla en null y como el fondo es transparente, desaparece
 		            nam.setText(""); //quitamos el texto ñam
+		            nam.setOpaque(false);
+		            nam.setBorder(null);
 		        });
 		        temporizador.setRepeats(false);
 		        temporizador.start();
