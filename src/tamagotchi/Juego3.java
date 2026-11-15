@@ -19,6 +19,7 @@ import java.util.Random;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -145,7 +146,11 @@ public class Juego3 extends JDialog {
 			btnSalir.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					// Paro el timer para no dejar procesos colgados por ahí
+					if (!gameOver && puntuacion > 0) {
+						EstadoMascota.sumarFelicidadGastandoEnergia(puntuacion/2);
+					} else {
+						EstadoMascota.registrarActividadJuego();
+					}
 					if (gameLoop != null) {
 						gameLoop.stop();
 					}
@@ -227,6 +232,16 @@ public class Juego3 extends JDialog {
 
 		// Limpio todo para empezar de cero
 		private void reiniciarJuego() {
+			if (EstadoMascota.getEnergia() <= 0 || EstadoMascota.getHambre() <= 0) {
+				gameLoop.stop();
+				JOptionPane.showMessageDialog(
+						Juego3.this,
+						"Tu mascota no puede seguir jugando: necesita comer o descansar.",
+						"Sin fuerzas",
+						JOptionPane.WARNING_MESSAGE);
+				Juego3.this.dispose();
+				return;
+			}
 			snakeHead = new Tile(9, 12);
 			snakeBody.clear();
 			placeFood();
@@ -270,14 +285,20 @@ public class Juego3 extends JDialog {
 			// ¿Nos hemos mordido la cola? Game over
 			for (int i = 0; i < snakeBody.size(); i++) {
 				if (collision(snakeHead, snakeBody.get(i))) {
-					gameOver = true;
+					if (!gameOver) {
+						gameOver = true;
+						EstadoMascota.sumarFelicidadGastandoEnergia(puntuacion/2);
+					}
 				}
 			}
 
 			// ¿Choque contra la pared? Game over
 			if (snakeHead.x < 0 || snakeHead.x >= (ancho / tileSize) ||
 				snakeHead.y < 0 || snakeHead.y >= (alto / tileSize)) {
-				gameOver = true;
+				if (!gameOver) {
+					gameOver = true;
+					EstadoMascota.sumarFelicidadGastandoEnergia(puntuacion/2);
+				}
 			}
 		}
 

@@ -4,11 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -18,6 +19,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 public class Inicio extends JFrame {
@@ -32,27 +34,27 @@ public class Inicio extends JFrame {
 	private JProgressBar barrafelicidad = new JProgressBar(0, 100);
 
 	private JPanel panelTamagotchi = new JPanel(new BorderLayout());
+	private JLabel imagenMascota;
 	private JPanel oscurecedor;
 	private Hiloenergia hiloenergia;
+	private Hilofelicidad hilofelicidad;
+	private Hiloinactividad hiloinactividad;
 	
 	private BotonRedondo btnalimentar;
 	private BotonRedondo btnjugar;
 	private BotonRedondo btndormir;
+	private BotonCircular btnmusica;
 
 	// CONSTRUCTOR 1: Por defecto (si se abre el juego desde cero, asigna amarillo)
 	public Inicio() {
-		this(new Color(255, 193, 7));
+		this(EstadoMascota.getColor());
 	}
 
 	// CONSTRUCTOR 2: Recibe el color seleccionado desde la pantalla Percha
 	public Inicio(Color colorMascota) {
-		// Asignamos el color recibido (o amarillo por seguridad si llega nulo)
 		this.colorMascota = (colorMascota != null) ? colorMascota : new Color(255, 193, 7);
+		EstadoMascota.setColor(this.colorMascota);
 
-		// Añadir el menú
-		this.setJMenuBar(new MenuInicio(
-				e -> cerrarJuego(),
-				e -> cambiarUsuario()));
 
 		this.setTitle("TAMAGOCHI - Inicio");
 		this.setSize(430, 550);
@@ -61,10 +63,11 @@ public class Inicio extends JFrame {
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
 		hiloenergia = new Hiloenergia();
+		hilofelicidad = new Hilofelicidad();
 
 		// Creación de los paneles
 		JPanel panelPrincipal = new JPanel(new BorderLayout());
-		JPanel panelCentro = new JPanel(new GridLayout(2, 1, 0, 10));
+		JPanel panelCentro = new JPanel(new BorderLayout(0, 10));
 		JPanel panelBotones = new JPanel(new GridLayout(1, 3, 10, 10));
 		panelBotones.setPreferredSize(new Dimension(0, 75));
 		panelBotones.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
@@ -75,11 +78,19 @@ public class Inicio extends JFrame {
 				BorderFactory.createTitledBorder(""),
 				BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
-		panelInfo.add(crearFila("Hambre", "fotos/POLLO.png", 0, new Color(255, 152, 0), barrahambre));
-		panelInfo.add(crearFila("Energia", "fotos/RAYO.png", 0, new Color(76, 175, 80), barraenergia));
-		panelInfo.add(crearFila("Felicidad", "fotos/CORAZON.png", 0, new Color(63, 143, 208), barrafelicidad));
+		panelInfo.add(crearFila("Hambre", "fotos/POLLO.png", EstadoMascota.getHambre(), new Color(255, 152, 0), barrahambre));
+		panelInfo.add(crearFila("Energia", "fotos/RAYO.png", EstadoMascota.getEnergia(), new Color(76, 175, 80), barraenergia));
+		panelInfo.add(crearFila("Felicidad", "fotos/CORAZON.png", EstadoMascota.getFelicidad(), new Color(63, 143, 208), barrafelicidad));
 
 		panelTamagotchi.setBorder(BorderFactory.createTitledBorder("Estado"));
+		imagenMascota = new JLabel("", SwingConstants.CENTER);
+		imagenMascota.setPreferredSize(new Dimension(200, 180));
+		imagenMascota.setOpaque(true);
+		imagenMascota.setBackground(new Color(235, 235, 235));
+
+		JPanel zonaMascota = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 5));
+		zonaMascota.add(imagenMascota);
+		panelTamagotchi.add(zonaMascota, BorderLayout.CENTER);
 
 		// Creación de botones
 		btnalimentar = new BotonRedondo("ALIMENTAR", new Color(76, 175, 80), new Color(46, 125, 50));
@@ -95,30 +106,36 @@ public class Inicio extends JFrame {
 
 		BotonCircular botonpercha = new BotonCircular("fotos/PERCHA.png", 30);
 		BotonCircular botonusuario = new BotonCircular("fotos/USUARIO.png", 30);
+		BotonCircular botonranking = new BotonCircular("fotos/COPA.png", 40);
 
-		JPanel zonaboton = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
-		zonaboton.add(botonusuario);
-		zonaboton.add(botonpercha);
+		//BotonDeMusica
+		btnmusica = new BotonCircular("fotos/MUSICA.png", 30);
+		
+		// Panel izquierdo: usuario + percha
+		JPanel zonabotonIzq = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+		zonabotonIzq.add(botonusuario);
+		zonabotonIzq.add(botonpercha);
+		
+		// Panel derecho: ranking
+		JPanel zonabotonDer = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
+		zonabotonDer.add(btnmusica);
+		zonabotonDer.add(botonranking);
 
-		panelTamagotchi.add(zonaboton, BorderLayout.NORTH);
+		// Panel de botones que contiene ambos lados
+		JPanel zonabotones = new JPanel(new BorderLayout());
+		zonabotones.add(zonabotonIzq, BorderLayout.WEST);
+		zonabotones.add(zonabotonDer, BorderLayout.EAST);
+		panelTamagotchi.add(zonabotones, BorderLayout.NORTH);
 
 		// Listeners de botones superiores
-		ActionListener listenerUsuario = e -> cambiarUsuario();
-		botonusuario.addActionListener(listenerUsuario);
+		botonusuario.addActionListener(e -> cambiarUsuario());
+		botonranking.addActionListener(e -> abrirRanking());
+		botonpercha.addActionListener(e -> iraPercha());
+		btnalimentar.addActionListener(e -> irAComida());
+		btnjugar.addActionListener(e -> irAJuegos());
 
-		ActionListener listenerAlimentar = e -> irAComida();
-		btnalimentar.addActionListener(listenerAlimentar);
-
-		// Listener para abrir la pantalla de juegos pasando el color de la mascota
-		ActionListener listenerJugar = e -> irAJuegos();
-		btnjugar.addActionListener(listenerJugar);
-
-		// Listener para abrir la pantalla de percha
-		ActionListener listenerPercha = e -> iraPercha();
-		botonpercha.addActionListener(listenerPercha);
-
-		panelCentro.add(panelTamagotchi);
-		panelCentro.add(panelInfo);
+		panelCentro.add(panelTamagotchi, BorderLayout.CENTER);
+		panelCentro.add(panelInfo, BorderLayout.SOUTH);
 
 		// Oscurecedor de pantalla
 		oscurecedor = new PanelOscuro(90);
@@ -142,35 +159,75 @@ public class Inicio extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (hiloenergia.isDormido()) {
-					hiloenergia.reanudar();
+					hiloenergia.despertar();
 					oscurecedor.setVisible(false);
 					btndormir.setText("DORMIR");
 					btndormir.setToolTipText("DORMIR");
 					btnalimentar.setEnabled(true);
 					btnjugar.setEnabled(true);
-
-		
+					mostrarMascota();
 				} else {
+					if (EstadoMascota.getEnergia() >= 100) {
+						JOptionPane.showMessageDialog(
+								Inicio.this,
+								"Tu mascota ya tiene la energía al máximo.");
+						return;
+					}
 					btnalimentar.setEnabled(false);
 					btnjugar.setEnabled(false);
 					hiloenergia.dormir();
 					oscurecedor.setVisible(true);
 					btndormir.setText("DESPERTAR");
 					btndormir.setToolTipText("DESPERTAR");
-					 hiloenergia.arrancarSiHaceFalta();
-
-				
+					mostrarMascota();
 				}
 			}
 		};
 
 		btndormir.addActionListener(listenerDormir);
 
+		//Listener del boton musica
+		btnmusica.addActionListener(e -> new VentanaMusica(this, Musica.getInstance()).setVisible(true));
 		panelPrincipal.add(capas, BorderLayout.CENTER);
 		panelPrincipal.add(panelBotones, BorderLayout.SOUTH);
 		this.add(panelPrincipal);
-		
-	
+		mostrarMascota();
+		hiloenergia.arrancarSiHaceFalta();
+		hilofelicidad.start();
+		hiloinactividad = new Hiloinactividad();
+		hiloinactividad.start();
+		Musica.getInstance().reproducir();
+	}
+
+	private void mostrarMascota() {
+		ImageIcon icono = EstadoMascota.componerMascota(200, 180);
+		if (icono == null) {
+			imagenMascota.setIcon(null);
+			imagenMascota.setText("falta imagen de mascota");
+			return;
+		}
+		if (hiloenergia.isDormido()) {
+			ImageIcon antifaz = new ImageIcon("fotos/antifaz_dormir.png");
+			if (antifaz.getIconWidth() > 0) {
+				int iw = icono.getIconWidth();
+				int ih = icono.getIconHeight();
+
+				BufferedImage conAntifaz = new BufferedImage(iw, ih, BufferedImage.TYPE_INT_ARGB);
+				Graphics2D g = conAntifaz.createGraphics();
+				g.drawImage(icono.getImage(), 0, 0, null);
+
+				int aw = (int) (iw * 0.64);
+				int ah = antifaz.getIconHeight() * aw / antifaz.getIconWidth();
+				int x = (iw - aw) / 2;
+				int y = (int) (ih * 0.49) - ah / 2;
+				g.drawImage(antifaz.getImage(), x, y, aw, ah, null);
+				g.dispose();
+
+				icono = new ImageIcon(conAntifaz);
+			}
+		}
+		imagenMascota.setIcon(icono);
+		imagenMascota.setText("");
 	}
 
 	private JPanel crearFila(String texto, String rutaIcono, int valor, Color color, JProgressBar barra) {
@@ -190,25 +247,77 @@ public class Inicio extends JFrame {
 		return fila;
 	}
 
+	private void detenerHilos() {
+		if (hiloenergia != null) hiloenergia.interrupt();
+		if (hilofelicidad != null) hilofelicidad.interrupt();
+		if (hiloinactividad != null) hiloinactividad.interrupt();
+	}
+
 	private void irAComida() {
+		if (EstadoMascota.getHambre() >= 100) {
+			JOptionPane.showMessageDialog(
+					this,
+					"Tu mascota está llena, no tiene hambre ahora mismo.",
+					"Sin hambre",
+					JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+		detenerHilos();
 		new Comida().setVisible(true);
 		this.dispose();
 	}
 
 	// Pasa el color actual guardado en Inicio a la pantalla JuegosClase
 	private void irAJuegos() {
+		boolean sinEnergia = EstadoMascota.getEnergia() <= 0;
+		boolean muchaHambre = EstadoMascota.getHambre() <= 0;
+
+		if (sinEnergia && muchaHambre) {
+			JOptionPane.showMessageDialog(
+					this,
+					"Tu mascota no tiene energía y además está hambrienta.\nDebe comer antes de hacer nada más.",
+					"Sin energía y con hambre",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		if (muchaHambre) {
+			JOptionPane.showMessageDialog(
+					this,
+					"Tu mascota tiene mucha hambre, por eso no puede jugar.\nHay que darle de comer.",
+					"Hambre",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		if (sinEnergia) {
+			JOptionPane.showMessageDialog(
+					this,
+					"No tienes energía, por eso no puedes jugar.\nDeja que tu mascota duerma para recuperarla.",
+					"Sin energía",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		detenerHilos();
+		EstadoMascota.registrarActividadJuego();
 		new JuegosClase(this, this.colorMascota).setVisible(true);
 		this.dispose();
 	}
 
 	private void cambiarUsuario() {
+		detenerHilos();
 		new PrimeraVentana().setVisible(true);
 		this.dispose();
 	}
 
 	private void iraPercha() {
-		new Percha().setVisible(true);
+		detenerHilos();
+		new Percha(this.colorMascota).setVisible(true);
 		this.dispose();
+	}
+	
+	private void abrirRanking() {
+		Ranking ranking = new Ranking(this);
+		ranking.setVisible(true);
 	}
 
 	private void cerrarJuego() {
@@ -224,79 +333,148 @@ public class Inicio extends JFrame {
 		}
 	}
 
-	// Permite actualizar el color de la mascota y repintar la zona
 	public void setColorSeleccionado(Color colorMascota) {
 		this.colorMascota = colorMascota;
 		panelTamagotchi.setBackground(colorMascota);
+		mostrarMascota();
 		panelTamagotchi.repaint();
 	}
 
 	public class Hiloenergia extends Thread {
 		private volatile boolean dormido = false;
+		private int ticksSueno = 0;
+		
 		private void despertarPorEnergia() {
-		    hiloenergia.reanudar();          // dormido = false + notifyAll()
-		    oscurecedor.setVisible(false);
-		    btndormir.setText("DORMIR");
-		    btndormir.setToolTipText("DORMIR");
-		    btnalimentar.setEnabled(true);
-		    btnjugar.setEnabled(true);
+			despertar();
+			SwingUtilities.invokeLater(() -> {
+				oscurecedor.setVisible(false);
+				btndormir.setText("DORMIR");
+				btndormir.setToolTipText("DORMIR");
+				btnalimentar.setEnabled(true);
+				btnjugar.setEnabled(true);
+				mostrarMascota();
+			});
 		}
 		 
 		public synchronized void arrancarSiHaceFalta() {
-		    if (!isAlive()) {
-		        dormido = false;
-		        start();
-		    }
-		    dormido = true;
-		    notifyAll();
+			if (!isAlive()) {
+				dormido = false;
+				start();
+			}
 		}
+
 		public synchronized void dormir() {
-	        	synchronized (this) {
-	        		  dormido = true;
-				}
-	         
-	        }
+			dormido = true;
+			notifyAll();
+		}
 
-	        public synchronized void reanudar() {
-	            dormido = false;
-	            notifyAll(); // despierta al hilo si estaba esperando
-	        }
+		public synchronized void despertar() {
+			dormido = false;
+			notifyAll();
+		}
 
-	        public synchronized boolean isDormido() {
-	            return dormido;
-	        }
+		public synchronized boolean isDormido() {
+			return dormido;
+		}
 
 		@Override
 		public void run() {
-		    while (!isInterrupted() && barraenergia.getValue() < 100) {
-		        synchronized (this) {
-		            while (!dormido && !isInterrupted()) {
-		                try {
-		                    wait();          // suelta el candado y espera el notify()
-		                } catch (InterruptedException e) {
-		                    return;
-		                }
-		            }
-		        }
+			while (!isInterrupted()) {
+				synchronized (this) {
+					while (!dormido && !isInterrupted()) {
+						try {
+							wait();
+						} catch (InterruptedException e) {
+							return;
+						}
+					}
+				}
 
-		        try {
-		            Thread.sleep(500);
-		        } catch (InterruptedException e) {
-		            return;
-		        }
+				try {
+					Thread.sleep(450);
+				} catch (InterruptedException e) {
+					return;
+				}
 
-		        SwingUtilities.invokeLater(() -> {
-		            int v = barraenergia.getValue() + 40;
-		            if (v > 100) {
-		                v = 100;
-		            }
-		            barraenergia.setValue(v);
-		            barraenergia.setString(v + " / 100");
-		        });
-		    }
-		    if (barraenergia.getValue()>=100) {
-		    	despertarPorEnergia();  
-		    }
+				SwingUtilities.invokeLater(() -> {
+					int v = Math.min(100, barraenergia.getValue() + 1);
+					EstadoMascota.setEnergia(v);
+					barraenergia.setValue(v);
+					barraenergia.setString(v + " / 100");
+					ticksSueno++;
+					if (ticksSueno % 5 == 0) { // el hambre baja 1 punto por cada 5 de energía ganada
+						int h = Math.max(0, EstadoMascota.getHambre() - 1);
+						EstadoMascota.setHambre(h);
+						barrahambre.setValue(h);
+						barrahambre.setString(h + " / 100");
+					}
+				});
+
+				if (barraenergia.getValue() >= 99 && isDormido()) {
+					despertarPorEnergia();
+				}
+			}
+		}
+	}
+
+	// Hilo que descarga la felicidad cuando lleva un rato sin jugar
+	public class Hilofelicidad extends Thread {
+		private static final long TIEMPO_ESPERA_SIN_JUGAR_MS = 45000; // 45 segundos sin jugar antes de empezar a bajar
+		private static final long INTERVALO_DESCARGA_MS = 5000;       // baja 1 punto cada 5 segundos
+
+		@Override
+		public void run() {
+			while (!isInterrupted()) {
+				try {
+					Thread.sleep(INTERVALO_DESCARGA_MS);
+				
+				} catch (InterruptedException e) {
+					return;
+				}
+
+				long sinJugar = System.currentTimeMillis() - EstadoMascota.getUltimoJuego(); //el tiempo de ahora mismo
+				if (sinJugar >= TIEMPO_ESPERA_SIN_JUGAR_MS && barrafelicidad.getValue() > 0) {
+					SwingUtilities.invokeLater(() -> {
+						int v = Math.max(0, barrafelicidad.getValue() - 1);
+						EstadoMascota.setFelicidad(v);
+						barrafelicidad.setValue(v);
+						barrafelicidad.setString(v + " / 100");
+					});
+				}
+			}
+		}
+	}
+	
+	public class Hiloinactividad extends Thread {
+		private static final long TIEMPO_ESPERA_SIN_JUGAR_MS = 45000; // 45 s sin jugar antes de empezar a bajar
+		private static final long INTERVALO_DESCARGA_MS = 5000;       // baja 1 punto cada 5 s
+
+		@Override
+		public void run() {
+			while (!isInterrupted()) {
+				try {
+					Thread.sleep(INTERVALO_DESCARGA_MS);
+				} catch (InterruptedException e) {
+					return;
+				}
+
+				long sinJugar = System.currentTimeMillis() - EstadoMascota.getUltimoJuego();
+				boolean durmiendo = hiloenergia.isDormido();
+
+				if (!durmiendo && sinJugar >= TIEMPO_ESPERA_SIN_JUGAR_MS) {
+					SwingUtilities.invokeLater(() -> {
+						int e = Math.max(0, EstadoMascota.getEnergia() - 1);
+						EstadoMascota.setEnergia(e);
+						barraenergia.setValue(e);
+						barraenergia.setString(e + " / 100");
+
+						int h = Math.max(0, EstadoMascota.getHambre() - 1);
+						EstadoMascota.setHambre(h);
+						barrahambre.setValue(h);
+						barrahambre.setString(h + " / 100");
+					});
+				}
+			}
 		}
 	}
 

@@ -55,6 +55,9 @@ public class Comida extends JFrame {
 		
 		//parte arriba con muñeco
 		JPanel parteMuñeco = new JPanel(new BorderLayout());
+		JLabel imagenMascota = new JLabel ("", JLabel.CENTER); //Se puede poner swing constats tb que es lo mismo
+		imagenMascota.setIcon(EstadoMascota.componerMascota(200, 200));
+		parteMuñeco.add(imagenMascota, BorderLayout.CENTER);
 		
 		
 		//parte aajo comida
@@ -85,7 +88,7 @@ public class Comida extends JFrame {
 			
 		}
 		
-		borderComida.add(gridComida, BorderLayout.CENTER);
+		
 		JScrollPane scrollPane = new JScrollPane(gridComida);
 		scrollPane.setBorder(null);
 		borderComida.add(scrollPane, BorderLayout.CENTER);
@@ -99,6 +102,10 @@ public class Comida extends JFrame {
 		this.add(panelPrincipal);
 		this.setSize(430,550);
 		this.setVisible(true);
+		this.setResizable(false);
+		this.setTitle("TAMAGOCHI - comida");
+		this.setLocationRelativeTo(null);
+		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
     private void cambiarUsuario() {
 		// TODO Auto-generated method stub
