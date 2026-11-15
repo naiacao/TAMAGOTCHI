@@ -43,6 +43,7 @@ public class Inicio extends JFrame {
 	private BotonRedondo btnalimentar;
 	private BotonRedondo btnjugar;
 	private BotonRedondo btndormir;
+	private BotonCircular btnmusica;
 
 	// CONSTRUCTOR 1: Por defecto (si se abre el juego desde cero, asigna amarillo)
 	public Inicio() {
@@ -107,6 +108,9 @@ public class Inicio extends JFrame {
 		BotonCircular botonusuario = new BotonCircular("fotos/USUARIO.png", 30);
 		BotonCircular botonranking = new BotonCircular("fotos/COPA.png", 40);
 
+		//BotonDeMusica
+		btnmusica = new BotonCircular("fotos/MUSICA.png", 30);
+		
 		// Panel izquierdo: usuario + percha
 		JPanel zonabotonIzq = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
 		zonabotonIzq.add(botonusuario);
@@ -114,6 +118,7 @@ public class Inicio extends JFrame {
 		
 		// Panel derecho: ranking
 		JPanel zonabotonDer = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
+		zonabotonDer.add(btnmusica);
 		zonabotonDer.add(botonranking);
 
 		// Panel de botones que contiene ambos lados
@@ -181,6 +186,8 @@ public class Inicio extends JFrame {
 
 		btndormir.addActionListener(listenerDormir);
 
+		//Listener del boton musica
+		btnmusica.addActionListener(e -> new VentanaMusica(this, Musica.getInstance()).setVisible(true));
 		panelPrincipal.add(capas, BorderLayout.CENTER);
 		panelPrincipal.add(panelBotones, BorderLayout.SOUTH);
 		this.add(panelPrincipal);
@@ -189,6 +196,7 @@ public class Inicio extends JFrame {
 		hilofelicidad.start();
 		hiloinactividad = new Hiloinactividad();
 		hiloinactividad.start();
+		Musica.getInstance().reproducir();
 	}
 
 	private void mostrarMascota() {
@@ -424,7 +432,7 @@ public class Inicio extends JFrame {
 					return;
 				}
 
-				long sinJugar = System.currentTimeMillis() - EstadoMascota.getUltimoJuego();
+				long sinJugar = System.currentTimeMillis() - EstadoMascota.getUltimoJuego(); //el tiempo de ahora mismo
 				if (sinJugar >= TIEMPO_ESPERA_SIN_JUGAR_MS && barrafelicidad.getValue() > 0) {
 					SwingUtilities.invokeLater(() -> {
 						int v = Math.max(0, barrafelicidad.getValue() - 1);
