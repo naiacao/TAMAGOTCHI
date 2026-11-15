@@ -5,18 +5,17 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridLayout;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
 
 public class Ranking extends JDialog {
 
@@ -35,7 +34,7 @@ public class Ranking extends JDialog {
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
 		//Creación de los paneles
-		JPanel panelPrincipal = new JPanel(new GridLayout(2, 1));
+		JPanel panelPrincipal = new JPanel(new BorderLayout());
 		JPanel panelPodio = new JPanel (new BorderLayout());
 		JPanel panelTabla = new JPanel(new BorderLayout());
 		
@@ -46,12 +45,18 @@ public class Ranking extends JDialog {
 		labelImagen.setHorizontalAlignment(SwingConstants.CENTER);
 		labelImagen.setVerticalAlignment(SwingConstants.CENTER); 
 		panelPodio.add(labelImagen, BorderLayout.CENTER);
-		panelPrincipal.add(panelPodio);
+		panelPodio.setPreferredSize(new Dimension(400, 220));
+		panelPrincipal.add(panelPodio, BorderLayout.NORTH);
+		
 		
 		//Creación de la tabla
 		JTable tabla = new JTable(new ModeloTablaRanking());
-		panelTabla.add(tabla, BorderLayout.CENTER);
-		panelPrincipal.add(panelTabla);
+		tabla.setRowHeight(35);
+		tabla.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		
+		//Creación del ScrollPane
+		JScrollPane scrollPane = new JScrollPane(tabla);
+		panelTabla.add(scrollPane, BorderLayout.CENTER);
 		
 		//Creación del renderizador
 		DefaultTableCellRenderer renderizador = new DefaultTableCellRenderer() {
@@ -71,21 +76,41 @@ public class Ranking extends JDialog {
 		};
 		tabla.setDefaultRenderer(Object.class, renderizador);
 		
-		// Renderizador de la cabecera
-        DefaultTableCellRenderer cabecera = new DefaultTableCellRenderer();
+		//Renderizador de la cabecera
+		DefaultTableCellRenderer cabecera = new DefaultTableCellRenderer() {
 
-        cabecera.setHorizontalAlignment(JLabel.CENTER);
-        cabecera.setFont(new Font("Monospaced", Font.BOLD, 19));
-        cabecera.setBackground(Color.LIGHT_GRAY);
-        cabecera.setForeground(Color.BLACK);
-        cabecera.setOpaque(true);
+		    @Override
+		    public Component getTableCellRendererComponent(JTable table, Object value,
+		            boolean isSelected, boolean hasFocus, int row, int column) {
+
+		        JLabel resultado = new JLabel(value.toString());
+
+		        resultado.setHorizontalAlignment(JLabel.CENTER);
+		        resultado.setFont(new Font("Monospaced", Font.BOLD, 18));
+		        resultado.setBackground(Color.LIGHT_GRAY);
+		        resultado.setForeground(Color.BLACK);
+		        resultado.setOpaque(true);
+
+		        // Borde derecho e inferior de cada columna
+		        resultado.setBorder(BorderFactory.createMatteBorder(
+		                0, 0, 1, 1, Color.WHITE));
+
+		        return resultado;
+		    }
+		};
+
+		tabla.getTableHeader().setDefaultRenderer(cabecera);
+
+		// Altura de la cabecera
+		tabla.getTableHeader().setPreferredSize(new Dimension(0, 45));
+
+		// Mostrar las líneas de separación
+		tabla.getTableHeader().setReorderingAllowed(false);	
         
-        tabla.getTableHeader().setDefaultRenderer(cabecera);
-
-        tabla.getTableHeader().setDefaultRenderer(cabecera);
-        tabla.getTableHeader().setPreferredSize(new Dimension(0, 40));
-		
 		//Añadir panel
-		this.add(panelPrincipal);
+        panelPrincipal.add(panelTabla, BorderLayout.CENTER);
+
+        this.add(panelPrincipal);	
+        
 	}
 }
