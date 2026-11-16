@@ -239,6 +239,7 @@ public class Inicio extends JFrame {
 					"Tu mascota se ha quedado sin energía.\nNecesita dormir o comer.",
 					"Sin energía",
 					JOptionPane.WARNING_MESSAGE));
+			btnjugar.setEnabled(false);
 		}
 	}
 

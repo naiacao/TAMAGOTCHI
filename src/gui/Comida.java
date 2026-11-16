@@ -139,7 +139,13 @@ public class Comida extends JFrame {
 		        EstadoMascota.setEnergia(EstadoMascota.getEnergia() + puntos / 2);
 		        
 		        comidaBoca.setIcon(new ImageIcon(ftBien)); //poner la imagen en la boca
-		        nam.setText("ÑAM, ÑAM !!");
+		        if(comida.equals("Cerveza") | comida.equals("Agua") |comida.equals("Zumo")) {
+		        	nam.setText("GLU, GLU !!");
+		        }else {
+		        	nam.setText("ÑAM, ÑAM !!");
+		        }
+		        	
+		       
 		        nam.setOpaque(true);
 		        nam.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 		        
