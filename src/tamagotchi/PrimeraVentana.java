@@ -197,12 +197,5 @@ public class PrimeraVentana extends JFrame {
   	    this.dispose();
 	  }
 	
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		SwingUtilities.invokeLater(() -> {
-          PrimeraVentana login = new PrimeraVentana();
-            login.setVisible(true);
-        });
-	}
 
 }

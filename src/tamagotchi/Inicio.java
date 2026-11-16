@@ -10,6 +10,9 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.awt.Cursor;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -142,6 +145,27 @@ public class Inicio extends JFrame {
 		panelCentro.add(panelTamagotchi, BorderLayout.CENTER);
 		panelCentro.add(panelInfo, BorderLayout.SOUTH);
 
+		//Mouse listener para el tamagochi
+		imagenMascota.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		imagenMascota.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (hiloenergia.isDormido()) {
+					JOptionPane.showMessageDialog(
+							Inicio.this,
+							"Zzz... (Está durmiendo)",
+							"Mascota",
+							JOptionPane.INFORMATION_MESSAGE);
+				} else {
+					JOptionPane.showMessageDialog(
+							Inicio.this,
+							"¡Holaaa! ¿Qué tal?",
+							"Mascota",
+							JOptionPane.INFORMATION_MESSAGE);
+				}
+			}
+		});
+		
 		// Oscurecedor de pantalla
 		oscurecedor = new PanelOscuro(90);
 		oscurecedor.setVisible(false);
@@ -483,10 +507,5 @@ public class Inicio extends JFrame {
 		}
 	}
 
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(() -> {
-			Inicio login = new Inicio();
-			login.setVisible(true);
-		});
-	}
+
 }

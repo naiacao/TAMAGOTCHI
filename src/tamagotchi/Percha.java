@@ -256,10 +256,4 @@ public class Percha extends JFrame {
 
     public Color getColorSeleccionado() { return colorSeleccionado; }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            Percha percha = new Percha();
-            percha.setVisible(true);
-        });
-    }
 }
