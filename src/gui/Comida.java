@@ -1,4 +1,4 @@
-package tamagotchi;
+package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -16,6 +16,9 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+
+import domain.EstadoMascota;
+import domain.Mascota;
 
 public class Comida extends JFrame {
 
@@ -102,7 +105,7 @@ public class Comida extends JFrame {
 			
 			
 			
-			//IA 99-102
+			//IA 106-110 "Gemini"
 			JButton boton = new JButton("<html><center><b>" 
 			+ comida + "</b><br><small>+" 
 			+ puntosComida + "</small></center></html>");
@@ -111,7 +114,7 @@ public class Comida extends JFrame {
 			
 			
 			ImageIcon ft = new ImageIcon("comida/" + comida + ".png");
-			java.awt.Image ftBien = ft.getImage().getScaledInstance(24, 24, java.awt.Image.SCALE_SMOOTH); //esta linea esta hecha con ia
+			java.awt.Image ftBien = ft.getImage().getScaledInstance(24, 24, java.awt.Image.SCALE_SMOOTH); //esta linea esta hecha con IA Gemini
 			boton.setIcon(new ImageIcon(ftBien));
 			
 			

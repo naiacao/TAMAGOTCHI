@@ -1,4 +1,4 @@
-package tamagotchi;
+package domain;
 
 import java.awt.Color;
 import java.awt.Graphics2D;

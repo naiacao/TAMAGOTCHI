@@ -1,4 +1,4 @@
-package tamagotchi;
+package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -14,7 +14,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import gui.BotonRedondo;
+import domain.BotonRedondo;
+import domain.EstadoMascota;
+import domain.Juego1;
+import domain.Juego2;
+import domain.Juego3;
+import domain.Juego4;
 
 // Mi pantalla del menú principal con la selección de los 4 minijuegos
 public class JuegosClase extends JFrame {

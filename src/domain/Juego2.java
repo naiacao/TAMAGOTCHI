@@ -1,4 +1,4 @@
-package tamagotchi;
+package domain;
 
 import java.awt.Color;
 import java.awt.Cursor;
@@ -24,7 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 
 // Juego 2: Space Shooter . Meteoritos. La idea base la saqué de un vídeo de YouTube,
-// y me apoyé en la IA para estructurar bien los timers, la física de disparo y los power-ups.
+// y me apoyé en la IA (Gemini) para estructurar bien los timers, la física de disparo y los power-ups.
 public class Juego2 extends JDialog {
 
 	private static final long serialVersionUID = 1L;

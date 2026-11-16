@@ -1,4 +1,4 @@
-package tamagotchi;
+package domain;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

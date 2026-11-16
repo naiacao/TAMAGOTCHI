@@ -1,4 +1,4 @@
-package tamagotchi;
+package gui;
 
 import java.awt.BorderLayout;
 
@@ -10,6 +10,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.SwingConstants;
+
+import domain.Musica;
 
 public class VentanaMusica extends JDialog {
 

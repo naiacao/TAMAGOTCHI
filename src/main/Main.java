@@ -2,7 +2,7 @@ package main;
 
 import javax.swing.SwingUtilities;
 
-import tamagotchi.PrimeraVentana;
+import gui.PrimeraVentana;
 
 public class Main {
 

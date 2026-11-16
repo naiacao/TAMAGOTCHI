@@ -1,4 +1,4 @@
-package tamagotchi;
+package domain;
 
 public class Mascota {
     // Variables de estado (0 a 100)

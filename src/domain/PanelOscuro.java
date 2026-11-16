@@ -1,4 +1,4 @@
-package tamagotchi;
+package domain;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -22,6 +22,7 @@ public class PanelOscuro extends JPanel {
 	@Override
 	protected void paintComponent(Graphics g) {
 		// TODO Auto-generated method stub
+		//IA Claude
 		 Graphics2D g2 = (Graphics2D) g.create();
 	        g2.setColor(new Color(0, 0, 0, cantidad));
 	        g2.fillRect(0, 0, getWidth(), getHeight());

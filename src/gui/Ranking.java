@@ -1,4 +1,4 @@
-package tamagotchi;
+package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -16,6 +16,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
+
+import domain.ModeloTablaRanking;
 
 public class Ranking extends JDialog {
 

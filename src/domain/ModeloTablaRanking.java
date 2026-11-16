@@ -1,4 +1,4 @@
-package tamagotchi;
+package domain;
 
 import javax.swing.table.DefaultTableModel;
 

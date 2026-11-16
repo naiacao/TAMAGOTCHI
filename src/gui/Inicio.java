@@ -1,4 +1,4 @@
-package tamagotchi;
+package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -25,8 +25,11 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
-import gui.BotonCircular;
-import gui.BotonRedondo;
+import domain.BotonCircular;
+import domain.BotonRedondo;
+import domain.EstadoMascota;
+import domain.Musica;
+import domain.PanelOscuro;
 
 public class Inicio extends JFrame {
 
@@ -244,6 +247,7 @@ public class Inicio extends JFrame {
 				int iw = icono.getIconWidth();
 				int ih = icono.getIconHeight();
 
+				//248-250 IA Claude
 				BufferedImage conAntifaz = new BufferedImage(iw, ih, BufferedImage.TYPE_INT_ARGB);
 				Graphics2D g = conAntifaz.createGraphics();
 				g.drawImage(icono.getImage(), 0, 0, null);

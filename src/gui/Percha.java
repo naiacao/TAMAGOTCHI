@@ -1,4 +1,4 @@
-package tamagotchi;
+package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -22,6 +22,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+
+import domain.ColorMascota;
+import domain.ColorRenderer;
+import domain.EstadoMascota;
 
 public class Percha extends JFrame {
 
@@ -170,7 +174,7 @@ public class Percha extends JFrame {
         int h = base.getIconHeight();
         int margen = (int) (h*MARGEN_ARRIBA);
 
-        //Ahora la zona la hemos hecho más grande y así el gorro no sale cortado
+        //Ahora la zona la hemos hecho más grande y así el gorro no sale cortado IA Claude
         BufferedImage compuesta = new BufferedImage(w, h + margen, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = compuesta.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,

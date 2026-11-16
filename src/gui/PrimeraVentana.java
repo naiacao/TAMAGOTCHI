@@ -1,4 +1,4 @@
-package tamagotchi;
+package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -20,7 +20,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import gui.BotonRedondo;
+import domain.BotonRedondo;
 
 
 public class PrimeraVentana extends JFrame {
@@ -101,7 +101,7 @@ public class PrimeraVentana extends JFrame {
 		panelCampo.add(titulo, BorderLayout.NORTH);            
 		panelCampo.add(zonaContraseña, BorderLayout.CENTER);   
 		
-		//Para regular bien el tamaño de la zona de contraseña (IA);
+		//Para regular bien el tamaño de la zona de contraseña (IA Claude);
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.weightx = 1.0;

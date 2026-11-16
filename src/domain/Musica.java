@@ -1,4 +1,4 @@
-package tamagotchi;
+package domain;
 
 import java.net.URL;
 import java.io.File;

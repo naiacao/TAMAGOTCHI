@@ -1,4 +1,4 @@
-package gui;
+package domain;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -29,6 +29,7 @@ public class BotonCircular extends JButton {
 
     @Override
     protected void paintComponent(Graphics g) {
+    	//33-43 IA Claude
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
