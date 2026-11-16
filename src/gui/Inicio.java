@@ -232,6 +232,14 @@ public class Inicio extends JFrame {
 		hiloinactividad = new Hiloinactividad();
 		hiloinactividad.start();
 		Musica.getInstance().reproducir();
+		
+		if (EstadoMascota.getEnergia() <= 0) {
+			SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(
+					this,
+					"Tu mascota se ha quedado sin energía.\nNecesita dormir o comer.",
+					"Sin energía",
+					JOptionPane.WARNING_MESSAGE));
+		}
 	}
 
 	private void mostrarMascota() {
@@ -449,6 +457,7 @@ public class Inicio extends JFrame {
 				if (barraenergia.getValue() >= 99 && isDormido()) {
 					despertarPorEnergia();
 				}
+				
 			}
 		}
 	}
@@ -499,7 +508,9 @@ public class Inicio extends JFrame {
 
 				if (!durmiendo && sinJugar >= TIEMPO_ESPERA_SIN_JUGAR_MS) {
 					SwingUtilities.invokeLater(() -> {
-						int e = Math.max(0, EstadoMascota.getEnergia() - 1);
+						int energiaAnterior = EstadoMascota.getEnergia();
+
+						int e = Math.max(0, energiaAnterior - 1);
 						EstadoMascota.setEnergia(e);
 						barraenergia.setValue(e);
 						barraenergia.setString(e + " / 100");
@@ -508,6 +519,15 @@ public class Inicio extends JFrame {
 						EstadoMascota.setHambre(h);
 						barrahambre.setValue(h);
 						barrahambre.setString(h + " / 100");
+
+						// Aviso solo en el momento en que la energía llega a 0
+						if (energiaAnterior > 0 && e == 0) {
+							JOptionPane.showMessageDialog(
+									Inicio.this,
+									"Tu mascota se ha quedado sin energía.\nNecesita dormir o comer.",
+									"Sin energía",
+									JOptionPane.WARNING_MESSAGE);
+						}
 					});
 				}
 			}
