@@ -25,6 +25,9 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
+import gui.BotonCircular;
+import gui.BotonRedondo;
+
 public class Inicio extends JFrame {
 
 	private static final long serialVersionUID = 1L;

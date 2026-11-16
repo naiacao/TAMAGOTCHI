@@ -20,6 +20,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import gui.BotonRedondo;
+
 
 public class PrimeraVentana extends JFrame {
 

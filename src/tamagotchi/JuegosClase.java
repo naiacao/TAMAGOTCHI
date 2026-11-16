@@ -14,6 +14,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import gui.BotonRedondo;
+
 // Mi pantalla del menú principal con la selección de los 4 minijuegos
 public class JuegosClase extends JFrame {
 
